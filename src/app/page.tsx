@@ -1,103 +1,98 @@
-import Image from "next/image";
+"use client";
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const messages = [
+    {
+      id: "1",
+      text: "Hey everyone, welcome to the chat!",
+      senderId: "user1",
+      timestamp: new Date(),
+    },
+    {
+      id: "2",
+      text: "Glad to be here!",
+      senderId: "user2",
+      timestamp: new Date(),
+    },
+    {
+      id: "3",
+      text: "This is a simple frontend skeleton.",
+      senderId: "user1",
+      timestamp: new Date(),
+    },
+    {
+      id: "4",
+      text: "No backend logic yet!",
+      senderId: "user2",
+      timestamp: new Date(),
+    },
+  ];
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  return (
+    <div className="flex h-screen bg-gray-800 text-gray-100 font-inter">
+      {/* Sidebar */}
+      <div className="w-64 bg-gray-900 flex flex-col p-4 rounded-lg m-2 shadow-lg">
+        <h2 className="text-xl font-bold mb-4 text-white">Channels</h2>
+        <ul className="space-y-2">
+          <li className="p-2 rounded-md bg-gray-700 hover:bg-gray-600 cursor-pointer transition-colors">
+            # general
+          </li>
+          <li className="p-2 rounded-md hover:bg-gray-700 cursor-pointer transition-colors">
+            # random
+          </li>
+          <li className="p-2 rounded-md hover:bg-gray-700 cursor-pointer transition-colors">
+            # announcements
+          </li>
+        </ul>
+        <div className="mt-auto pt-4 border-t border-gray-700">
+          <div className="flex items-center text-sm">
+            <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold mr-2">
+              U
+            </div>
+            <span>User ID: agariomasster</span>
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
+      </div>
+      {/* Main Chat Area */}
+      <div className="flex-1 flex flex-col bg-gray-700 rounded-lg m-2 shadow-lg">
+        {/* Chat Header */}
+        <div className="p-4 bg-gray-900 rounded-t-lg flex items-center justify-between">
+          <h2 className="text-xl font-bold text-white"># general</h2>
+        </div>
+
+        {/* Messages Display */}
+        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          {messages.map((msg) => (
+            <div key={msg.id}>
+              <div className="max-w-xl p-3 rounded-lg shadow">
+                <div className="font-semibold text-sm mb-1">{msg.senderId}</div>
+                <p className="text-base break-words">{msg.text}</p>
+                {msg.timestamp && (
+                  <div className="text-xs text-gray-400 mt-1 text-right">
+                    {new Date(msg.timestamp).toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+          <div /> {/* Empty div for scrolling */}
+        </div>
+
+        {/* Message Input */}
+        <div className="p-4 bg-gray-900 rounded-b-lg flex items-center">
+          <input
+            type="text"
+            className="flex-1 p-3 rounded-md bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Type your message..."
           />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+          <button className="ml-4 px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
+            Send
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
