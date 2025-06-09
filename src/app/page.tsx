@@ -35,13 +35,13 @@ export default function Home() {
         <h2 className="text-xl font-bold mb-4 text-white">Channels</h2>
         <ul className="space-y-2">
           <li className="p-2 rounded-md bg-gray-700 hover:bg-gray-600 cursor-pointer transition-colors">
-            # general
+            # Chat 1
           </li>
           <li className="p-2 rounded-md hover:bg-gray-700 cursor-pointer transition-colors">
-            # random
+            # Chat 2
           </li>
           <li className="p-2 rounded-md hover:bg-gray-700 cursor-pointer transition-colors">
-            # announcements
+            # Chat 3
           </li>
         </ul>
         <div className="mt-auto pt-4 border-t border-gray-700">
