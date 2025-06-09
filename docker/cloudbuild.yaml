@@ -1,0 +1,26 @@
+steps:
+# If you still want to leverage caching for your main image,
+# you would try to pull the *latest* version of your image.
+- name: 'gcr.io/cloud-builders/docker'
+  entrypoint: 'bash'
+  args:
+  - '-c'
+  - |
+    docker pull gcr.io/$PROJECT_ID/campfire-server:latest || exit 0
+
+- name: 'gcr.io/cloud-builders/docker'
+  args: [
+    'build',
+    '-f', 'docker/Dockerfile', # Points to your single Dockerfile
+    '-t', 'gcr.io/$PROJECT_ID/campfire-server:latest',
+    '--cache-from', 'gcr.io/$PROJECT_ID/campfire-server:latest', # Cache from latest
+    '.'
+  ]
+
+# The 'push' step for 'base' is no longer needed since there's no separate base image
+# and the 'images' section will handle pushing 'latest'.
+# If you remove the images section, you'd add:
+# - name: 'gcr.io/cloud-builders/docker'
+#   args: ['push', 'gcr.io/$PROJECT_ID/campfire-server:latest']
+
+images: ['gcr.io/$PROJECT_ID/campfire-server:latest']
