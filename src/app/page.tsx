@@ -108,9 +108,9 @@ export default function Home() {
         </div>
       </div>
     );
-  } else {
+  } else if (user === null) {
     return (
-      <div className="h-screen flex justify-center items-center">
+      <div className="flex h-screen bg-gray-800 text-gray-100 font-inter justify-center items-center">
         <div>
           <p>Please Sign In!</p>
           <button
@@ -136,6 +136,12 @@ export default function Home() {
             <div />
           </button>
         </div>
+      </div>
+    );
+  } else {
+    return (
+      <div className="flex h-screen bg-gray-800 text-gray-100 font-inter justify-center items-center">
+        <p>Loading Campfire...</p>
       </div>
     );
   }
