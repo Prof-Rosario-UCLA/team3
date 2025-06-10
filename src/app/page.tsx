@@ -144,6 +144,8 @@ export default function Home() {
     console.log("Message Sent!");
 
     getChatContents(selectedChatId);
+
+    setMessageContent("");
   }
 
   useEffect(() => {
@@ -266,6 +268,7 @@ export default function Home() {
               type="text"
               className="flex-1 p-3 rounded-md bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Type your message..."
+              value={messageContent}
               onChange={(e) => {
                 setMessageContent(e.target.value);
               }}
