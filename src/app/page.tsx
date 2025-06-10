@@ -11,7 +11,7 @@ export default function Home() {
 
   const [selectedChat, setSelectedChat] = useState("Selected Chat");
 
-  const [selectedChatId, setSelectedChatId] = useState("QxArvhX1x0VZMw0akPrr");
+  const [selectedChatId, setSelectedChatId] = useState("awoooga");
 
   const [newChatName, setNewChatName] = useState();
 
@@ -44,30 +44,29 @@ export default function Home() {
     }
   }
 
-  async function getChatContents() {
-    const response = await fetch(
-      "/api/chat/get-chat-contents/" + selectedChatId,
-      {
+  async function getChatContents(chat_id: string) {
+    if (chat_id) {
+      const response = await fetch("/api/chat/get-chat-contents/" + chat_id, {
         method: "GET",
-      }
-    );
+      });
 
-    const { result, error } = await response.json();
+      const { result, error } = await response.json();
 
-    if (error) {
-      console.log(error);
-      alert("ERROR " + error);
-    } else {
-      if (result) {
-        setMessages(result.messages);
+      if (error) {
+        console.log(error);
+        alert("ERROR " + error);
+      } else {
+        if (result) {
+          setMessages(result.messages);
+        }
       }
     }
   }
 
   async function loadMessages(chat_id: string) {
     console.log("Loading chat messages for " + chat_id);
+    await getChatContents(chat_id);
     setSelectedChatId(chat_id);
-    await getChatContents();
   }
 
   async function getChatsForUser() {
@@ -88,6 +87,27 @@ export default function Home() {
     }
   }
 
+  async function addMemberToChat() {
+    const member_email = "kevinbowditch11@gmail.com";
+
+    const response = await fetch("/api/chat/add-member", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        email: member_email,
+        chat_id: selectedChatId,
+      }),
+    });
+
+    const { result, error } = await response.json();
+
+    if (result && !error) {
+      alert("Chat Added!");
+    }
+  }
+
   useEffect(() => {
     if (user === null || user === undefined) {
       return;
@@ -95,7 +115,7 @@ export default function Home() {
 
     createUser();
 
-    console.log("Fetching Chats for user");
+    console.log("Fetching Channels for user");
     getChatsForUser();
 
     setChatsLoading(false);
@@ -141,6 +161,9 @@ export default function Home() {
       <div className="flex h-screen bg-gray-800 text-gray-100 font-inter">
         <button onClick={createChat}>Click me!</button>\
         <button onClick={getChatsForUser}>Fetch all chats!</button>
+        <button onClick={addMemberToChat}>
+          Add kevinbowditch11@gmail.com to chat!
+        </button>
         {/* Sidebar */}
         <div className="w-64 bg-gray-900 flex flex-col p-4 rounded-lg m-2 shadow-lg">
           <h2 className="text-xl font-bold mb-4 text-white">Channels</h2>

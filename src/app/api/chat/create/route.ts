@@ -14,14 +14,16 @@ export async function POST(req: Request) {
 
   const authorizationHeader = req.headers.get("authorization");
   const uid = await getUidFromAuthorizationHeader(authorizationHeader);
+  const email = await getEmailFromAuthorizationHeader(authorizationHeader);
 
   const chatData = {
     name: data.name,
     members: [uid],
+    member_emails: [email],
     messages: [
       {
-        user: "Campfire",
-        content: "Welcome to a new chatroom!",
+        user: "The Campfire Team",
+        content: "Welcome to the " + data.name + " channel!",
         timestamp: new Date().toLocaleTimeString([], {
           hour: "2-digit",
           minute: "2-digit",
