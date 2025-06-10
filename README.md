@@ -38,5 +38,5 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 
 ## docker
 ```dockerfile
-docker build -f docker/Dockerfile -t cali-burrito-web-server:latest .
+docker build -f docker/Dockerfile -t campfire:latest .
 ```
