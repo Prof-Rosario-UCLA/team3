@@ -119,25 +119,27 @@ export default function Home() {
   }
 
   async function createChat() {
-    setChatsLoading(true);
-    const response = await fetch("/api/chat/create", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        name: newChatName,
-      }),
-    });
+    if (newChatName) {
+      setChatsLoading(true);
+      const response = await fetch("/api/chat/create", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          name: newChatName,
+        }),
+      });
 
-    const { error } = await response.json();
+      const { error } = await response.json();
 
-    if (error) {
-      alert(error);
+      if (error) {
+        alert(error);
+      }
+
+      await getChatsForUser();
+      setNewChatName("");
     }
-
-    await getChatsForUser();
-    setNewChatName("");
   }
 
   async function getChatContents(chat_id: string) {

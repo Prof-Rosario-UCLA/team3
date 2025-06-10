@@ -54,7 +54,10 @@ export async function POST(req: Request) {
   const newMessage: Message = {
     user: message.user,
     content: message.content,
-    timestamp: new Date().toLocaleTimeString([], {
+    timestamp: new Date().toLocaleString([], {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
       hour: "2-digit",
       minute: "2-digit",
     }),

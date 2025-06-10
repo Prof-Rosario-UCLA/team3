@@ -27,7 +27,7 @@ app.prepare().then(() => {
         // Listen for 'msg-send' event from clients
         socket.on("msg-send", (chat_id, user, timestamp, content) => {
             console.log(`Message received from ${user}: ${content}`);
-            // Broadcast the message to all connected clients
+            // Broadcast the message to all connected clients (will need to create separate websockets in the future...)
 
             io.emit("msg-send", chat_id, user, timestamp, content);
         });

@@ -24,7 +24,10 @@ export async function POST(req: Request) {
       {
         user: "The Campfire Team",
         content: "Welcome to the " + data.name + " channel!",
-        timestamp: new Date().toLocaleTimeString([], {
+        timestamp: new Date().toLocaleString([], {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
           hour: "2-digit",
           minute: "2-digit",
         }),
