@@ -24,3 +24,7 @@ steps:
 #   args: ['push', 'gcr.io/$PROJECT_ID/campfire-server:latest']
 
 images: ['gcr.io/$PROJECT_ID/campfire-server:latest']
+
+options:
+  serviceAccount: 'projects/your-gcp-project-id/serviceAccounts/campfire-service-acc@campfire-461317.iam.gserviceaccount.com' # Replace with your service account
+  logging: CLOUD_LOGGING_ONLY # <--- ADD THIS LINE
