@@ -1,0 +1,18 @@
+# service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: campfire-service # Name of your Kubernetes Service
+  labels:
+    app: campfire
+spec:
+  # Selects pods with the label 'app: nextjs-app' to expose
+  selector:
+    app: campfire
+  ports:
+    - protocol: TCP
+      port: 80 # The port that the service will expose externally (e.g., for HTTP)
+      targetPort: 3000 # The port on the container that the service will send traffic to
+  type: LoadBalancer # Exposes the service externally using a cloud provider's load balancer
+                     # Use 'ClusterIP' for internal-only access within the cluster
+                     # Use 'NodePort' if you want to expose on a static port on each node (less common for web apps)
