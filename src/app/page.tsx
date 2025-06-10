@@ -1,9 +1,35 @@
 "use client";
 
 import { useAuth } from "@/lib/authContext";
+import { useState } from "react";
 
 export default function Home() {
-  const { user, signInWithGoogle, signOutUser } = useAuth();
+  const { user, token, signInWithGoogle, signOutUser } = useAuth();
+
+  // const [messages, setMessages] = useState([]);
+  // const [chats, setChats] = useState([]);
+
+  const [selectedChat, setSelectedChat] = useState("Selected Chat");
+
+  const [newChatName, setNewChatName] = useState();
+
+  async function createChat() {
+    const response = await fetch("/api/chat/create", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        name: "Group Chat 2",
+      }),
+    });
+
+    const { result, error } = await response.json();
+
+    if (result && !error) {
+      alert("Chat Added!");
+    }
+  }
 
   const messages = [
     {
@@ -31,22 +57,31 @@ export default function Home() {
       timestamp: new Date(),
     },
   ];
+
+  const chats = [
+    { id: "chat-1", name: "Chat 1" },
+    { id: "chat-2", name: "Chat 2" },
+    { id: "chat-3", name: "Chat 3" },
+    { id: "chat-4", name: "General Discussion" },
+  ];
   if (user !== null && user !== undefined) {
     return (
       <div className="flex h-screen bg-gray-800 text-gray-100 font-inter">
+        <button onClick={createChat}>Click me!</button>
         {/* Sidebar */}
         <div className="w-64 bg-gray-900 flex flex-col p-4 rounded-lg m-2 shadow-lg">
           <h2 className="text-xl font-bold mb-4 text-white">Channels</h2>
           <ul className="space-y-2">
-            <li className="p-2 rounded-md bg-gray-700 hover:bg-gray-600 cursor-pointer transition-colors">
-              # Chat 1
-            </li>
-            <li className="p-2 rounded-md hover:bg-gray-700 cursor-pointer transition-colors">
-              # Chat 2
-            </li>
-            <li className="p-2 rounded-md hover:bg-gray-700 cursor-pointer transition-colors">
-              # Chat 3
-            </li>
+            {chats.map((chat, index) => (
+              <li
+                key={chat.id} // Important: Provide a unique 'key' prop for each mapped element
+                className={`p-2 rounded-md ${
+                  index === 0 ? "bg-gray-700" : ""
+                } hover:bg-gray-600 cursor-pointer transition-colors`}
+              >
+                # {chat.name}
+              </li>
+            ))}
           </ul>
           <div className="mt-auto pt-4 border-t border-gray-700">
             <div className="flex items-center text-sm">
@@ -68,7 +103,7 @@ export default function Home() {
         <div className="flex-1 flex flex-col bg-gray-700 rounded-lg m-2 shadow-lg">
           {/* Chat Header */}
           <div className="p-4 bg-gray-900 rounded-t-lg flex items-center justify-between">
-            <h2 className="text-xl font-bold text-white"># general</h2>
+            <h2 className="text-xl font-bold text-white">{selectedChat}</h2>
           </div>
 
           {/* Messages Display */}
