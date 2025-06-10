@@ -1,7 +1,7 @@
 "use client";
 
 import { useAuth } from "@/lib/authContext";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 export default function Home() {
   const { user, token, signInWithGoogle, signOutUser } = useAuth();
@@ -11,11 +11,23 @@ export default function Home() {
 
   const [selectedChat, setSelectedChat] = useState("Selected Chat");
 
-  const [selectedChatId, setSelectedChatId] = useState("awoooga");
+  const [selectedChatId, setSelectedChatId] = useState("");
+
+  const [messageContent, setMessageContent] = useState("");
 
   const [newChatName, setNewChatName] = useState();
 
   const [chatsLoading, setChatsLoading] = useState(false);
+
+  const messagesEndRef = useRef<null | HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
   async function createUser() {
     await fetch("/api/user/create", {
@@ -108,6 +120,32 @@ export default function Home() {
     }
   }
 
+  async function sendMessage() {
+    const response = await fetch("/api/chat/add-message", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        chatId: selectedChatId,
+        message: {
+          user: user.email,
+          content: messageContent,
+        },
+      }),
+    });
+
+    const { result, error } = await response.json();
+
+    if (error) {
+      alert(error);
+    }
+
+    console.log("Message Sent!");
+
+    getChatContents(selectedChatId);
+  }
+
   useEffect(() => {
     if (user === null || user === undefined) {
       return;
@@ -159,11 +197,6 @@ export default function Home() {
   if (user !== null && user !== undefined) {
     return (
       <div className="flex h-screen bg-gray-800 text-gray-100 font-inter">
-        <button onClick={createChat}>Click me!</button>\
-        <button onClick={getChatsForUser}>Fetch all chats!</button>
-        <button onClick={addMemberToChat}>
-          Add kevinbowditch11@gmail.com to chat!
-        </button>
         {/* Sidebar */}
         <div className="w-64 bg-gray-900 flex flex-col p-4 rounded-lg m-2 shadow-lg">
           <h2 className="text-xl font-bold mb-4 text-white">Channels</h2>
@@ -223,6 +256,7 @@ export default function Home() {
                 </div>
               </div>
             ))}
+            <div ref={messagesEndRef} />
             <div /> {/* Empty div for scrolling */}
           </div>
 
@@ -232,8 +266,14 @@ export default function Home() {
               type="text"
               className="flex-1 p-3 rounded-md bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Type your message..."
+              onChange={(e) => {
+                setMessageContent(e.target.value);
+              }}
             />
-            <button className="ml-4 px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
+            <button
+              onClick={sendMessage}
+              className="ml-4 px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+            >
               Send
             </button>
           </div>
