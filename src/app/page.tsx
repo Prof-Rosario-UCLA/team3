@@ -31,7 +31,9 @@ export default function Home() {
 
   const [newMemberName, setNewMemberName] = useState("");
 
-  const [chatsLoading, setChatsLoading] = useState(false);
+  const [chatsLoading, setChatsLoading] = useState(true);
+  const [messagesLoading, setMessagesLoading] = useState(false);
+  const [sendMessageLoading, setSendMessageLoading] = useState(false);
 
   const messagesEndRef = useRef<null | HTMLDivElement>(null);
 
@@ -117,6 +119,7 @@ export default function Home() {
   }
 
   async function createChat() {
+    setChatsLoading(true);
     const response = await fetch("/api/chat/create", {
       method: "POST",
       headers: {
@@ -139,6 +142,14 @@ export default function Home() {
 
   async function getChatContents(chat_id: string) {
     if (chat_id) {
+      setMessagesLoading(true);
+      setMessages([
+        {
+          user: "",
+          timestamp: "",
+          content: "",
+        },
+      ]);
       const response = await fetch("/api/chat/get-chat-contents/" + chat_id, {
         method: "GET",
       });
@@ -153,6 +164,7 @@ export default function Home() {
           setMessages(result.messages);
         }
       }
+      setMessagesLoading(false);
     }
   }
 
@@ -164,6 +176,8 @@ export default function Home() {
   }
 
   async function getChatsForUser() {
+    setChatsLoading(true);
+
     const response = await fetch("/api/chat/get-user-chats", {
       method: "GET",
       headers: {
@@ -178,6 +192,7 @@ export default function Home() {
       alert("ERROR " + error);
     } else {
       setChats(result);
+      setChatsLoading(false);
     }
   }
 
@@ -209,6 +224,7 @@ export default function Home() {
 
   async function sendMessage() {
     if (messageContent && user) {
+      setSendMessageLoading(true);
       const response = await fetch("/api/chat/add-message", {
         method: "POST",
         headers: {
@@ -241,6 +257,7 @@ export default function Home() {
             messageContent
           );
           setMessageContent("");
+          setSendMessageLoading(false);
         }
       }
     }
@@ -255,8 +272,6 @@ export default function Home() {
 
     console.log("Fetching Channels for user");
     getChatsForUser();
-
-    setChatsLoading(false);
 
     getChatContents(selectedChatId);
   }, [user]);
@@ -396,6 +411,7 @@ export default function Home() {
             ) : (
               <p>Please select or create a chat to view and send messages!</p>
             )}
+            {messagesLoading && <div>Loading messages...</div>}
             <div ref={messagesEndRef} />
             <div /> {/* Empty div for scrolling */}
           </div>
@@ -411,7 +427,7 @@ export default function Home() {
                 setMessageContent(e.target.value);
               }}
             />
-            {messages.length === 0 ? (
+            {messages.length === 0 || sendMessageLoading ? (
               <button className="ml-4 px-6 py-3 text-gray-400 rounded-md bg-gray-600">
                 Send
               </button>
