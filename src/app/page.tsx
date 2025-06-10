@@ -1,17 +1,30 @@
 "use client";
 
 import { useAuth } from "@/lib/authContext";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function Home() {
   const { user, token, signInWithGoogle, signOutUser } = useAuth();
 
-  // const [messages, setMessages] = useState([]);
-  // const [chats, setChats] = useState([]);
+  const [messages, setMessages] = useState([]);
+  const [chats, setChats] = useState([]);
 
   const [selectedChat, setSelectedChat] = useState("Selected Chat");
 
+  const [selectedChatId, setSelectedChatId] = useState("QxArvhX1x0VZMw0akPrr");
+
   const [newChatName, setNewChatName] = useState();
+
+  const [chatsLoading, setChatsLoading] = useState(false);
+
+  async function createUser() {
+    await fetch("/api/user/create", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  }
 
   async function createChat() {
     const response = await fetch("/api/chat/create", {
@@ -31,58 +44,125 @@ export default function Home() {
     }
   }
 
-  const messages = [
-    {
-      id: "1",
-      text: "Hey everyone, welcome to the chat!",
-      senderId: "user1",
-      timestamp: new Date(),
-    },
-    {
-      id: "2",
-      text: "Glad to be here!",
-      senderId: "user2",
-      timestamp: new Date(),
-    },
-    {
-      id: "3",
-      text: "This is a simple frontend skeleton.",
-      senderId: "user1",
-      timestamp: new Date(),
-    },
-    {
-      id: "4",
-      text: "No backend logic yet!",
-      senderId: "user2",
-      timestamp: new Date(),
-    },
-  ];
+  async function getChatContents() {
+    const response = await fetch(
+      "/api/chat/get-chat-contents/" + selectedChatId,
+      {
+        method: "GET",
+      }
+    );
 
-  const chats = [
-    { id: "chat-1", name: "Chat 1" },
-    { id: "chat-2", name: "Chat 2" },
-    { id: "chat-3", name: "Chat 3" },
-    { id: "chat-4", name: "General Discussion" },
-  ];
+    const { result, error } = await response.json();
+
+    if (error) {
+      console.log(error);
+      alert("ERROR " + error);
+    } else {
+      if (result) {
+        setMessages(result.messages);
+      }
+    }
+  }
+
+  async function loadMessages(chat_id: string) {
+    console.log("Loading chat messages for " + chat_id);
+    setSelectedChatId(chat_id);
+    await getChatContents();
+  }
+
+  async function getChatsForUser() {
+    const response = await fetch("/api/chat/get-user-chats", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const { result, error } = await response.json();
+
+    if (error) {
+      console.log(error);
+      alert("ERROR " + error);
+    } else {
+      setChats(result);
+    }
+  }
+
+  useEffect(() => {
+    if (user === null || user === undefined) {
+      return;
+    }
+
+    createUser();
+
+    console.log("Fetching Chats for user");
+    getChatsForUser();
+
+    setChatsLoading(false);
+
+    getChatContents();
+  }, [user]);
+
+  // const messages = [
+  //   {
+  //     id: "1",
+  //     text: "Hey everyone, welcome to the chat!",
+  //     senderId: "user1",
+  //     timestamp: new Date(),
+  //   },
+  //   {
+  //     id: "2",
+  //     text: "Glad to be here!",
+  //     senderId: "user2",
+  //     timestamp: new Date(),
+  //   },
+  //   {
+  //     id: "3",
+  //     text: "This is a simple frontend skeleton.",
+  //     senderId: "user1",
+  //     timestamp: new Date(),
+  //   },
+  //   {
+  //     id: "4",
+  //     text: "No backend logic yet!",
+  //     senderId: "user2",
+  //     timestamp: new Date(),
+  //   },
+  // ];
+
+  // const chats = [
+  //   { id: "chat-1", name: "Chat 1" },
+  //   { id: "chat-2", name: "Chat 2" },
+  //   { id: "chat-3", name: "Chat 3" },
+  //   { id: "chat-4", name: "General Discussion" },
+  // ];
   if (user !== null && user !== undefined) {
     return (
       <div className="flex h-screen bg-gray-800 text-gray-100 font-inter">
-        <button onClick={createChat}>Click me!</button>
+        <button onClick={createChat}>Click me!</button>\
+        <button onClick={getChatsForUser}>Fetch all chats!</button>
         {/* Sidebar */}
         <div className="w-64 bg-gray-900 flex flex-col p-4 rounded-lg m-2 shadow-lg">
           <h2 className="text-xl font-bold mb-4 text-white">Channels</h2>
-          <ul className="space-y-2">
-            {chats.map((chat, index) => (
-              <li
-                key={chat.id} // Important: Provide a unique 'key' prop for each mapped element
-                className={`p-2 rounded-md ${
-                  index === 0 ? "bg-gray-700" : ""
-                } hover:bg-gray-600 cursor-pointer transition-colors`}
-              >
-                # {chat.name}
-              </li>
-            ))}
-          </ul>
+          {chatsLoading === true ? (
+            <p className="text-white">Loading your Channels...</p>
+          ) : (
+            <ul className="space-y-2">
+              {chats.map((chat) => (
+                <li
+                  key={chat.id}
+                  className={`p-2 rounded-md ${
+                    selectedChatId === chat.id ? "bg-gray-700" : ""
+                  } hover:bg-gray-600 cursor-pointer transition-colors`}
+                  onClick={() => {
+                    loadMessages(chat.id);
+                  }}
+                >
+                  {chat.name}
+                </li>
+              ))}
+            </ul>
+          )}
           <div className="mt-auto pt-4 border-t border-gray-700">
             <div className="flex items-center text-sm">
               <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold mr-2">
@@ -108,21 +188,15 @@ export default function Home() {
 
           {/* Messages Display */}
           <div className="flex-1 overflow-y-auto p-4 space-y-4">
-            {messages.map((msg) => (
-              <div key={msg.id}>
+            {messages.map((msg, index) => (
+              <div key={index}>
                 <div className="max-w-xl p-3 rounded-lg shadow">
-                  <div className="font-semibold text-sm mb-1">
-                    {msg.senderId}
+                  <div className="font-semibold text-sm mb-1">{msg.user}</div>
+                  <p className="text-base break-words">{msg.content}</p>
+
+                  <div className="text-xs text-gray-400 mt-1 text-right">
+                    {msg.timestamp}
                   </div>
-                  <p className="text-base break-words">{msg.text}</p>
-                  {msg.timestamp && (
-                    <div className="text-xs text-gray-400 mt-1 text-right">
-                      {new Date(msg.timestamp).toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </div>
-                  )}
                 </div>
               </div>
             ))}
@@ -149,7 +223,11 @@ export default function Home() {
         <div>
           <p>Please Sign In!</p>
           <button
-            onClick={signInWithGoogle}
+            onClick={() => {
+              setChats([]);
+              setMessages([]);
+              signInWithGoogle();
+            }}
             className="my-4 mr-2 inline-flex bg-[#3e72aa] items-center justify-between rounded-lg px-5 py-2.5 text-center text-white text-sm font-medium hover:bg-[#24476b]"
           >
             <svg
