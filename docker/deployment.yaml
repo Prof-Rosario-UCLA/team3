@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: campfire-container
-        image: gcr.io/campfire-461317/campfire-server:latests
+        image: gcr.io/PROJECT_ID/IMAGE:TAG
         # This app listens on port 3000 for web traffic by default.
         ports:
         - containerPort: 3000
