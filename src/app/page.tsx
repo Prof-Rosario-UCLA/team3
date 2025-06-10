@@ -3,7 +3,19 @@
 import { useAuth } from "@/lib/authContext";
 import { useState, useEffect, useRef } from "react";
 
+import { io, Socket } from "socket.io-client"; // Import Socket type for better type inference
+
+let socket: Socket | null = null;
+if (typeof window !== "undefined") {
+  // Only initialize in the browser environment
+  socket = io("http://localhost:3000");
+}
+
 export default function Home() {
+  // WEBSOCKET SETUP
+  const [isConnected, setIsConnected] = useState(false);
+  const [transport, setTransport] = useState("N/A");
+
   const { user, token, signInWithGoogle, signOutUser } = useAuth();
 
   const [messages, setMessages] = useState([]);
@@ -26,6 +38,70 @@ export default function Home() {
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
+
+  // Effect for managing socket connection status and listeners
+  useEffect(() => {
+    function onChatMessage(
+      chat_id: string,
+      user: string,
+      timestamp: string,
+      content: string
+    ) {
+      console.log("**********");
+      console.log(chat_id);
+      console.log(selectedChatId);
+      console.log("**********");
+      if (chat_id === selectedChatId) {
+        setMessages((prevMsgs) => [
+          ...prevMsgs,
+          {
+            user,
+            timestamp,
+            content,
+          },
+        ]);
+        scrollToBottom(); // Scroll after new message
+      }
+    }
+
+    function onConnect() {
+      setIsConnected(true);
+      setTransport(socket!.io.engine.transport.name); // Using socket! as it's checked above
+
+      socket!.io.engine.on("upgrade", (transport) => {
+        setTransport(transport.name);
+      });
+      console.log("Socket connected:", socket!.id);
+    }
+
+    function onDisconnect() {
+      setIsConnected(false);
+      setTransport("N/A");
+      console.log("Socket disconnected:", socket!.id);
+    }
+
+    if (!socket) return; // Ensure socket is initialized
+
+    if (socket.connected) {
+      onConnect();
+    }
+
+    scrollToBottom();
+
+    socket.on("connect", onConnect);
+    socket.on("disconnect", onDisconnect);
+    socket.on("msg-send", onChatMessage); // Listen for incoming chat messages
+
+    // Cleanup function
+    return () => {
+      socket!.off("connect", onConnect);
+      socket!.off("disconnect", onDisconnect);
+      socket!.off("msg-send", onChatMessage);
+      // IMPORTANT: Do NOT disconnect the socket here if you want it to persist across page navigations.
+      // Only disconnect if you truly want to close the connection when this component unmounts for good.
+      // socket.disconnect(); // Uncomment only if you want to close the connection here
+    };
+  }); // Empty dependency array ensures this effect runs once on mount
 
   useEffect(() => {
     scrollToBottom();
@@ -132,7 +208,7 @@ export default function Home() {
   }
 
   async function sendMessage() {
-    if (messageContent) {
+    if (messageContent && user) {
       const response = await fetch("/api/chat/add-message", {
         method: "POST",
         headers: {
@@ -151,13 +227,22 @@ export default function Home() {
 
       if (error) {
         alert(error);
+      } else {
+        console.log("Message Sent!");
+
+        const timestamp = result.timestamp;
+
+        if (socket && user) {
+          socket.emit(
+            "msg-send",
+            selectedChatId,
+            user.email,
+            timestamp,
+            messageContent
+          );
+          setMessageContent("");
+        }
       }
-
-      console.log("Message Sent!");
-
-      getChatContents(selectedChatId);
-
-      setMessageContent("");
     }
   }
 

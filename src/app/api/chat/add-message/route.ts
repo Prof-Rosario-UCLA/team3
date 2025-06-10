@@ -85,6 +85,7 @@ export async function POST(req: Request) {
 
     result = {
       message: `Message added to chat ${chatId} (allowing duplicates).`,
+      timestamp: newMessage.timestamp,
     };
   } catch (err) {
     console.error(
