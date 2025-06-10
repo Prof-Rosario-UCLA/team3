@@ -120,7 +120,7 @@ export default function Home() {
 
     setChatsLoading(false);
 
-    getChatContents();
+    getChatContents(selectedChatId);
   }, [user]);
 
   // const messages = [
