@@ -47,8 +47,11 @@ ENV NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=${NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID}
 # Define build argument for server-side Firebase Service Account Key (if used by Next.js build process)
 # While typically used at runtime, sometimes build tools might need access.
 # If your build process truly doesn't need it, you can omit this ARG/ENV here.
-# ARG FIREBASE_SERVICE_ACCOUNT_KEY
-# ENV FIREBASE_SERVICE_ACCOUNT_KEY=${FIREBASE_SERVICE_ACCOUNT_KEY}
+ARG FIREBASE_PRIVATE_KEY
+ENV FIREBASE_PRIVATE_KEY=${FIREBASE_PRIVATE_KEY}
+
+ARG FIREBASE_CLIENT_EMAIL
+ENV FIREBASE_CLIENT_EMAIL=${FIREBASE_CLIENT_EMAIL}
 # --- END: Firebase Environment Variables for BUILDER Stage ---
 
 # Next.js collects completely anonymous telemetry data about general usage.
