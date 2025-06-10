@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: campfire-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: campfire
+  template:
+    metadata:
+      labels:
+        app: campfire
+    spec:
+      containers:
+      - name: campfire-container
+        image: gcr.io/PROJECT_ID/IMAGE:TAG
+        # This app listens on port 3000 for web traffic by default.
+        ports:
+        - containerPort: 3000
+        env:
+          - name: PORT
+            value: "3000"
+          - name: NODE_ENV
+            value: "production"
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"

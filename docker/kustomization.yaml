@@ -1,0 +1,17 @@
+# kustomization.yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+- deployment.yaml
+- service.yaml
+- managed-cert.yaml # <--- Add this
+- ingress.yaml           # <--- Add this
+- frontend-config.yaml   # <--- Add this (if you created it)
+
+images:
+# The 'name' here MUST exactly match the image name from deployment.yaml
+# Kustomize will use 'newName' and 'newTag' to patch the 'image' field in deployment.yaml
+- name: gcr.io/PROJECT_ID/IMAGE:TAG # This is your placeholder image from deployment.yaml
+  newName: gcr.io/PROJECT_ID/IMAGE # This will be set by your workflow to your GCR/Artifact Registry repo path
+  newTag: TAG # This will be set by your workflow to the GITHUB_SHA
