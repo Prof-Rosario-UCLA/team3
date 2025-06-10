@@ -20,8 +20,6 @@ input: email, chat_id
 export async function POST(req: Request) {
   const data = await req.json();
 
-  console.log("THe benemoth");
-
   let result = false;
   let error = null;
 
@@ -32,7 +30,6 @@ export async function POST(req: Request) {
 
     if (querySnapshot.empty) {
       console.log(`No user found with email: ${data.email}`);
-      return null; // No user found
     } else {
       // Assuming email addresses are unique per user, there should only be one document.
       const userDoc = querySnapshot.docs[0];

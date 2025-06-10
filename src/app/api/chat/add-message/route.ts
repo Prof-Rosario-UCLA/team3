@@ -86,7 +86,6 @@ export async function POST(req: Request) {
     result = {
       message: `Message added to chat ${chatId} (allowing duplicates).`,
     };
-    console.log(result.message);
   } catch (err) {
     console.error(
       "Error appending message to chat document with duplicates:",

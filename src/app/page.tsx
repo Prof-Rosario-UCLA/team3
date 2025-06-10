@@ -17,6 +17,8 @@ export default function Home() {
 
   const [newChatName, setNewChatName] = useState("");
 
+  const [newMemberName, setNewMemberName] = useState("");
+
   const [chatsLoading, setChatsLoading] = useState(false);
 
   const messagesEndRef = useRef<null | HTMLDivElement>(null);
@@ -78,10 +80,11 @@ export default function Home() {
     }
   }
 
-  async function loadMessages(chat_id: string) {
+  async function loadMessages(chat_id: string, chat_name: string) {
     console.log("Loading chat messages for " + chat_id);
     await getChatContents(chat_id);
     setSelectedChatId(chat_id);
+    setSelectedChat(chat_name);
   }
 
   async function getChatsForUser() {
@@ -103,38 +106,14 @@ export default function Home() {
   }
 
   async function addMemberToChat() {
-    const member_email = "kevinbowditch11@gmail.com";
-
     const response = await fetch("/api/chat/add-member", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({
-        email: member_email,
+        email: newMemberName,
         chat_id: selectedChatId,
-      }),
-    });
-
-    const { result, error } = await response.json();
-
-    if (result && !error) {
-      alert("Chat Added!");
-    }
-  }
-
-  async function sendMessage() {
-    const response = await fetch("/api/chat/add-message", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        chatId: selectedChatId,
-        message: {
-          user: user.email,
-          content: messageContent,
-        },
       }),
     });
 
@@ -142,13 +121,44 @@ export default function Home() {
 
     if (error) {
       alert(error);
+    } else if (result === false) {
+      alert("user not found!");
+    } else if (result === true) {
+      alert("user added!");
+      setNewMemberName("");
+    } else {
+      alert("blehhh");
     }
+  }
 
-    console.log("Message Sent!");
+  async function sendMessage() {
+    if (messageContent) {
+      const response = await fetch("/api/chat/add-message", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          chatId: selectedChatId,
+          message: {
+            user: user.email,
+            content: messageContent,
+          },
+        }),
+      });
 
-    getChatContents(selectedChatId);
+      const { result, error } = await response.json();
 
-    setMessageContent("");
+      if (error) {
+        alert(error);
+      }
+
+      console.log("Message Sent!");
+
+      getChatContents(selectedChatId);
+
+      setMessageContent("");
+    }
   }
 
   useEffect(() => {
@@ -233,7 +243,7 @@ export default function Home() {
                     selectedChatId === chat.id ? "bg-gray-700" : ""
                   } hover:bg-gray-600 cursor-pointer transition-colors`}
                   onClick={() => {
-                    loadMessages(chat.id);
+                    loadMessages(chat.id, chat.name);
                   }}
                 >
                   {chat.name}
@@ -262,22 +272,45 @@ export default function Home() {
           {/* Chat Header */}
           <div className="p-4 bg-gray-900 rounded-t-lg flex items-center justify-between">
             <h2 className="text-xl font-bold text-white">{selectedChat}</h2>
+
+            {messages.length > 0 && (
+              <div className="flex">
+                <input
+                  placeholder="Member Email..."
+                  className="p-3 rounded-md bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 w-3/4 mr-1"
+                  value={newMemberName}
+                  onChange={(e) => {
+                    setNewMemberName(e.target.value);
+                  }}
+                ></input>
+                <button
+                  onClick={addMemberToChat}
+                  className="bg-gray-700 hover:bg-gray-600 rounded-md p-2 text-2xl w-1/4"
+                >
+                  +
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Messages Display */}
           <div className="flex-1 overflow-y-auto p-4 space-y-4">
-            {messages.map((msg, index) => (
-              <div key={index}>
-                <div className="max-w-xl p-3 rounded-lg shadow">
-                  <div className="font-semibold text-sm mb-1">{msg.user}</div>
-                  <p className="text-base break-words">{msg.content}</p>
+            {messages.length > 0 ? (
+              messages.map((msg, index) => (
+                <div key={index}>
+                  <div className="max-w-xl p-3 rounded-lg shadow">
+                    <div className="font-semibold text-sm mb-1">{msg.user}</div>
+                    <p className="text-base break-words">{msg.content}</p>
 
-                  <div className="text-xs text-gray-400 mt-1 text-right">
-                    {msg.timestamp}
+                    <div className="text-xs text-gray-400 mt-1 text-right">
+                      {msg.timestamp}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))
+            ) : (
+              <p>Please select or create a chat to view and send messages!</p>
+            )}
             <div ref={messagesEndRef} />
             <div /> {/* Empty div for scrolling */}
           </div>
@@ -293,12 +326,18 @@ export default function Home() {
                 setMessageContent(e.target.value);
               }}
             />
-            <button
-              onClick={sendMessage}
-              className="ml-4 px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
-            >
-              Send
-            </button>
+            {messages.length === 0 ? (
+              <button className="ml-4 px-6 py-3 text-gray-400 rounded-md bg-gray-600">
+                Send
+              </button>
+            ) : (
+              <button
+                onClick={sendMessage}
+                className="ml-4 px-6 py-3 text-white rounded-md bg-blue-600 hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+              >
+                Send
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -312,6 +351,7 @@ export default function Home() {
             onClick={() => {
               setChats([]);
               setMessages([]);
+              setSelectedChatId("");
               signInWithGoogle();
             }}
             className="my-4 mr-2 inline-flex bg-[#3e72aa] items-center justify-between rounded-lg px-5 py-2.5 text-center text-white text-sm font-medium hover:bg-[#24476b]"
