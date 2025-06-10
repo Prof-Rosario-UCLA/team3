@@ -5,7 +5,7 @@ metadata:
   name: campfire-ingress # A unique name for your Ingress resource
   annotations:
     kubernetes.io/ingress.class: "gce" # Tells Kubernetes to use the GKE Ingress controller
-    networking.gke.io/managed-certificates: "mcrt-aa7021c1-3366-4343-8475-0331a4390d6d" # <--- Reference your ManagedCertificate name
+    networking.gke.io/managed-certificates: "campfire-cert" # <--- Reference your ManagedCertificate name
     kubernetes.io/ingress.global-static-ip-name: "campfire-ip" # <--- Reference your reserved static IP name
     # Optional: Configure HTTP to HTTPS redirect (recommended for production)
     networking.gke.io/v1beta1.FrontendConfig: "default-frontend-config" # <--- Reference a FrontendConfig below
@@ -36,10 +36,3 @@ spec:
             name: campfire-service
             port:
               number: 80
-
-# spec:
-#   defaultBackend:
-#     service:
-#       name: campfire-service
-#       port:
-#         number: 80
