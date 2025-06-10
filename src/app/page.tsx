@@ -24,6 +24,7 @@ export default function Home() {
   const [selectedChat, setSelectedChat] = useState("Selected Chat");
 
   const [selectedChatId, setSelectedChatId] = useState("");
+  const [selectedChatEmails, setSelectedChatEmails] = useState([""]);
 
   const [messageContent, setMessageContent] = useState("");
 
@@ -170,11 +171,16 @@ export default function Home() {
     }
   }
 
-  async function loadMessages(chat_id: string, chat_name: string) {
+  async function loadMessages(
+    chat_id: string,
+    chat_name: string,
+    member_emails: string[]
+  ) {
     console.log("Loading chat messages for " + chat_id);
     await getChatContents(chat_id);
     setSelectedChatId(chat_id);
     setSelectedChat(chat_name);
+    setSelectedChatEmails(member_emails);
   }
 
   async function getChatsForUser() {
@@ -199,6 +205,7 @@ export default function Home() {
   }
 
   async function addMemberToChat() {
+    setMessagesLoading(true);
     const response = await fetch("/api/chat/add-member", {
       method: "POST",
       headers: {
@@ -217,11 +224,17 @@ export default function Home() {
     } else if (result === false) {
       alert("user not found!");
     } else if (result === true) {
-      alert("user added!");
       setNewMemberName("");
+      setSelectedChatEmails((prev) => {
+        if (!prev.includes(newMemberName)) {
+          return [...prev, newMemberName];
+        }
+        return prev; // If it already exists, return the previous state unchanged
+      });
     } else {
       alert("blehhh");
     }
+    setMessagesLoading(false);
   }
 
   async function sendMessage() {
@@ -345,7 +358,7 @@ export default function Home() {
                     selectedChatId === chat.id ? "bg-gray-700" : ""
                   } hover:bg-gray-600 cursor-pointer transition-colors`}
                   onClick={() => {
-                    loadMessages(chat.id, chat.name);
+                    loadMessages(chat.id, chat.name, chat.member_emails);
                   }}
                 >
                   {chat.name}
@@ -356,7 +369,7 @@ export default function Home() {
           <div className="mt-auto pt-4 border-t border-gray-700">
             <div className="flex items-center text-sm">
               <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold mr-2">
-                U
+                {user && user.email && user.email[0]}
               </div>
               <span>User ID: {user.email}</span>
             </div>
@@ -374,7 +387,6 @@ export default function Home() {
           {/* Chat Header */}
           <div className="p-4 bg-gray-900 rounded-t-lg flex items-center justify-between">
             <h2 className="text-xl font-bold text-white">{selectedChat}</h2>
-
             {messages.length > 0 && (
               <div className="flex">
                 <input
@@ -391,6 +403,19 @@ export default function Home() {
                 >
                   +
                 </button>
+              </div>
+            )}
+          </div>
+          <div className="px-4 pb-4 bg-gray-900 items-center justify-between">
+            {messagesLoading ? (
+              <div>Loading Chat Members...</div>
+            ) : (
+              <div>
+                <div className="font-bold">Members:</div>
+                {selectedChatEmails &&
+                  selectedChatEmails.map((email, index) => (
+                    <div key={index}>{email}</div>
+                  ))}
               </div>
             )}
           </div>

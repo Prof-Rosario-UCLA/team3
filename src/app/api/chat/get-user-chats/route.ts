@@ -24,6 +24,7 @@ export async function GET(req: Request) {
     result = result.docs.map((doc) => ({
       id: doc.id,
       name: doc.data().name,
+      member_emails: doc.data().member_emails,
     }));
   } catch (err) {
     error = err;
