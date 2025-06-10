@@ -1,11 +1,5 @@
 import { db } from "@/lib/firebase/config";
-import {
-  doc,
-  updateDoc,
-  getDoc,
-  runTransaction,
-  FieldValue,
-} from "firebase/firestore"; // Import runTransaction, getDoc
+import { doc, runTransaction, FieldValue } from "firebase/firestore"; // Import runTransaction, getDoc
 import { NextResponse } from "next/server";
 import { getUidFromAuthorizationHeader } from "@/app/api/util";
 
@@ -28,6 +22,11 @@ export async function POST(req: Request) {
   const requestingUid = await getUidFromAuthorizationHeader(
     authorizationHeader
   );
+
+  // If uid is null, it means authentication failed or token was invalid
+  if (!requestingUid) {
+    return NextResponse.json({ result: null, error: "Unauthorized" });
+  }
 
   if (!requestingUid) {
     return NextResponse.json(

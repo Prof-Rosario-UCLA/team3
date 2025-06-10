@@ -13,6 +13,11 @@ export async function GET(req: Request) {
   const authorizationHeader = req.headers.get("authorization");
   const uid = await getUidFromAuthorizationHeader(authorizationHeader);
 
+  // If uid is null, it means authentication failed or token was invalid
+  if (!uid) {
+    return NextResponse.json({ result: null, error: "Unauthorized" });
+  }
+
   const chatsRef = collection(db, "chats");
 
   // query for documents where members array contains the uid
