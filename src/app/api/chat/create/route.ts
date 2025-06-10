@@ -16,6 +16,11 @@ export async function POST(req: Request) {
   const uid = await getUidFromAuthorizationHeader(authorizationHeader);
   const email = await getEmailFromAuthorizationHeader(authorizationHeader);
 
+  // If uid is null, it means authentication failed or token was invalid
+  if (!uid) {
+    return NextResponse.json({ result: null, error: "Unauthorized" });
+  }
+
   const chatData = {
     name: data.name,
     members: [uid],

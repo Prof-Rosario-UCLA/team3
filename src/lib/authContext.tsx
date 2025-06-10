@@ -31,14 +31,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     try {
       await signInWithPopup(auth, provider);
       //onAuthStateChanged will handle setting the user and token.
-    } catch (error: any) {
-      if (error.code === "auth/popup-closed-by-user") {
-        console.log("Popup closed by user.");
-        // Handle the closed popup scenario gracefully.
-      } else {
-        console.error("Google sign-in error:", error);
-        // Handle other sign-in errors.
-      }
+    } catch (error) {
+      // if (error.code === "auth/popup-closed-by-user") {
+      //   console.log("Popup closed by user.");
+      //   // Handle the closed popup scenario gracefully.
+      // } else {
+      //   console.error("Google sign-in error:", error);
+      //   // Handle other sign-in errors.
+      // }
+      console.log(error);
     }
   }
 

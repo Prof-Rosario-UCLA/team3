@@ -11,8 +11,8 @@ if (!getApps().length) {
       }),
     });
     console.log("Firebase Admin initialized");
-  } catch (error: any) {
-    console.error("Firebase Admin initialization error", error.stack);
+  } catch (error) {
+    console.error("Firebase Admin initialization error ", error);
   }
 }
 

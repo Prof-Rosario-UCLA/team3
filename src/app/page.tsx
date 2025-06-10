@@ -11,14 +11,29 @@ if (typeof window !== "undefined") {
   socket = io("http://localhost:3000");
 }
 
+interface Chat {
+  id: string; // Or number, depending on your actual ID type
+  name: string;
+  member_emails: string[];
+  // Add any other properties your chat object might have
+}
+
+// Define an interface for your message object
+interface Message {
+  user: string;
+  timestamp: string;
+  content: string;
+  // Add any other properties your message object might have
+}
+
 export default function Home() {
   // WEBSOCKET SETUP
-  const [isConnected, setIsConnected] = useState(false);
-  const [transport, setTransport] = useState("N/A");
+  // const [isConnected, setIsConnected] = useState(false);
+  // const [transport, setTransport] = useState("N/A");
 
   const { user, token, signInWithGoogle, signOutUser } = useAuth();
 
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [chats, setChats] = useState([]);
 
   const [selectedChat, setSelectedChat] = useState("Selected Chat");
@@ -68,18 +83,18 @@ export default function Home() {
     }
 
     function onConnect() {
-      setIsConnected(true);
-      setTransport(socket!.io.engine.transport.name); // Using socket! as it's checked above
+      // setIsConnected(true);
+      // setTransport(socket!.io.engine.transport.name); // Using socket! as it's checked above
 
-      socket!.io.engine.on("upgrade", (transport) => {
-        setTransport(transport.name);
-      });
+      // socket!.io.engine.on("upgrade", (transport) => {
+      //   setTransport(transport.name);
+      // });
       console.log("Socket connected:", socket!.id);
     }
 
     function onDisconnect() {
-      setIsConnected(false);
-      setTransport("N/A");
+      // setIsConnected(false);
+      // setTransport("N/A");
       console.log("Socket disconnected:", socket!.id);
     }
 
@@ -351,7 +366,7 @@ export default function Home() {
             <p className="text-white">Loading your Channels...</p>
           ) : (
             <ul className="space-y-2">
-              {chats.map((chat) => (
+              {chats.map((chat: Chat) => (
                 <li
                   key={chat.id}
                   className={`p-2 rounded-md ${

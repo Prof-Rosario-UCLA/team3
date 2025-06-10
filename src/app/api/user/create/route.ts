@@ -19,6 +19,11 @@ export async function POST(req: Request) {
     email,
   };
 
+  // If uid is null, it means authentication failed or token was invalid
+  if (!uid) {
+    return NextResponse.json({ result: null, error: "Unauthorized" });
+  }
+
   // 1. Create a reference to the specific user document using the UID as the document ID
   const userDocRef = doc(db, "users", uid);
 

@@ -1,7 +1,7 @@
 import { db } from "@/lib/firebase/config";
 import { getDoc, doc } from "firebase/firestore";
 import { NextResponse } from "next/server";
-import { getUidFromAuthorizationHeader } from "@/app/api/util";
+// import { getUidFromAuthorizationHeader } from "@/app/api/util";
 
 /*
  * Get all the chat messages for a given user
@@ -15,11 +15,6 @@ export async function GET(
 
   let result = null;
   let error = null;
-
-  //   const authorizationHeader = req.headers.get("authorization");
-  //   const uid = await getUidFromAuthorizationHeader(authorizationHeader);
-
-  //   console.log(uid + " requesting chat contents");
 
   const chatDocRef = doc(db, "chats", chat_id);
 

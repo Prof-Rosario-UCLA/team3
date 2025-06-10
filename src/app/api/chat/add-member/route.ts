@@ -9,10 +9,7 @@ import {
   arrayUnion,
 } from "firebase/firestore";
 import { NextResponse } from "next/server";
-import {
-  getUidFromAuthorizationHeader,
-  getEmailFromAuthorizationHeader,
-} from "@/app/api/util";
+import { getUidFromAuthorizationHeader } from "@/app/api/util";
 
 /*
 input: email, chat_id
@@ -22,6 +19,14 @@ export async function POST(req: Request) {
 
   let result = false;
   let error = null;
+
+  const authorizationHeader = req.headers.get("authorization");
+  const uid = await getUidFromAuthorizationHeader(authorizationHeader);
+
+  // If uid is null, it means authentication failed or token was invalid
+  if (!uid) {
+    return NextResponse.json({ result: null, error: "Unauthorized" });
+  }
 
   const usersRef = collection(db, "users");
   const q = query(usersRef, where("email", "==", data.email));
