@@ -1,0 +1,9 @@
+# docker/frontend-config.yaml
+apiVersion: networking.gke.io/v1beta1
+kind: FrontendConfig
+metadata:
+  name: default-frontend-config # A unique name for your FrontendConfig
+spec:
+  redirectToHttps:
+    enabled: true
+    responseCode: MOVED_PERMANENTLY_DEFAULT # 301 redirect
