@@ -15,7 +15,7 @@ export default function Home() {
 
   const [messageContent, setMessageContent] = useState("");
 
-  const [newChatName, setNewChatName] = useState();
+  const [newChatName, setNewChatName] = useState("");
 
   const [chatsLoading, setChatsLoading] = useState(false);
 
@@ -45,15 +45,18 @@ export default function Home() {
         Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({
-        name: "Group Chat 2",
+        name: newChatName,
       }),
     });
 
-    const { result, error } = await response.json();
+    const { error } = await response.json();
 
-    if (result && !error) {
-      alert("Chat Added!");
+    if (error) {
+      alert(error);
     }
+
+    await getChatsForUser();
+    setNewChatName("");
   }
 
   async function getChatContents(chat_id: string) {
@@ -202,6 +205,23 @@ export default function Home() {
         {/* Sidebar */}
         <div className="w-64 bg-gray-900 flex flex-col p-4 rounded-lg m-2 shadow-lg">
           <h2 className="text-xl font-bold mb-4 text-white">Channels</h2>
+          <div className="flex">
+            <input
+              placeholder="Channel Name..."
+              className="p-3 rounded-md bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 w-3/4 mr-1"
+              value={newChatName}
+              onChange={(e) => {
+                setNewChatName(e.target.value);
+              }}
+            ></input>
+            <button
+              onClick={createChat}
+              className="bg-gray-700 hover:bg-gray-600 rounded-md p-2 text-2xl w-1/4"
+            >
+              +
+            </button>
+          </div>
+          <br></br>
           {chatsLoading === true ? (
             <p className="text-white">Loading your Channels...</p>
           ) : (
