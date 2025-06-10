@@ -5,7 +5,7 @@ kind: Kustomization
 resources:
 - deployment.yaml
 - service.yaml
-- managed-certificate.yaml # <--- Add this
+- managed-cert.yaml # <--- Add this
 - ingress.yaml           # <--- Add this
 - frontend-config.yaml   # <--- Add this (if you created it)
 
