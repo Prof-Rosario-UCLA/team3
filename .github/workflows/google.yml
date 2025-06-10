@@ -63,19 +63,15 @@ jobs:
           --tag "gcr.io/$PROJECT_ID/$IMAGE:$GITHUB_SHA" \
           --build-arg GITHUB_SHA="$GITHUB_SHA" \
           --build-arg GITHUB_REF="$GITHUB_REF" \
+          --build-arg NEXT_PUBLIC_FIREBASE_API_KEY="${{ secrets.FIREBASE_API_KEY }}" \
+          --build-arg NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN="${{ secrets.FIREBASE_AUTH_DOMAIN }}" \
+          --build-arg NEXT_PUBLIC_FIREBASE_PROJECT_ID="${{ secrets.FIREBASE_PROJECT_ID }}" \
+          --build-arg NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET="${{ secrets.FIREBASE_STORAGE_BUCKET }}" \
+          --build-arg NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID="${{ secrets.FIREBASE_MESSAGING_SENDER_ID }}" \
+          --build-arg NEXT_PUBLIC_FIREBASE_APP_ID="${{ secrets.FIREBASE_APP_ID }}" \
+          --build-arg NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID="${{ secrets.FIREBASE_MEASUREMENT_ID }}" \
+          --build-arg FIREBASE_SERVICE_ACCOUNT_KEY="${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}" \
           .
-      env: # <--- Add environment variables here for the Docker build
-        # Public Firebase variables (prefixed with NEXT_PUBLIC_)
-        NEXT_PUBLIC_FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
-        NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: ${{ secrets.FIREBASE_AUTH_DOMAIN }}
-        NEXT_PUBLIC_FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
-        NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: ${{ secrets.FIREBASE_STORAGE_BUCKET }}
-        NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.FIREBASE_MESSAGING_SENDER_ID }}
-        NEXT_PUBLIC_FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
-        NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID: ${{ secrets.FIREBASE_MEASUREMENT_ID }}
-        # Server-side Firebase variables (no NEXT_PUBLIC_ prefix, only if needed by your Next.js server code)
-        FIREBASE_PRIVATE_KEY: ${{ secrets.FIREBASE_PRIVATE_KEY }}
-        FIREBASE_CLIENT_EMAIL: ${{ secrets.FIREBASE_CLIENT_EMAIL }}
 
     # Push the Docker image to Google Container Registry
     - name: Publish
