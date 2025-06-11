@@ -90,6 +90,15 @@ export default function Home() {
             content,
           },
         ]);
+        // todo: get messages by chat_id
+        // add to messages:
+        // {
+        //   user,
+        //       timestamp,
+        //       content,
+        // }
+        // todo: save new array to local storage
+
         scrollToBottom(); // Scroll after new message
       }
     }
@@ -173,6 +182,7 @@ export default function Home() {
       console.log("null or undefined chat_id for gatChatContents");
       return;
     }
+    // ui things
     setMessagesLoading(true);
     setMessages([
       {
@@ -181,7 +191,10 @@ export default function Home() {
         content: "",
       },
     ]);
+
+    // back end things
     // todo: try to grab by chat ID from storage
+    // if it doesn't exist, try fetching
     const response = await fetch("/api/chat/get-chat-contents/" + chat_id, {
       method: "GET",
     });
@@ -194,8 +207,12 @@ export default function Home() {
     } else {
       if (result) {
         setMessages(result.messages);
+        // todo: set browser storage
+        // chat_id -> list of messages
       }
     }
+
+    // ui
     setMessagesLoading(false);
   }
 
