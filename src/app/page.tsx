@@ -121,7 +121,6 @@ export default function Home() {
       socket!.off("msg-send", onChatMessage);
       // IMPORTANT: Do NOT disconnect the socket here if you want it to persist across page navigations.
       // Only disconnect if you truly want to close the connection when this component unmounts for good.
-      // socket.disconnect(); // Uncomment only if you want to close the connection here
     };
   }); // Empty dependency array ensures this effect runs once on mount
 
