@@ -70,7 +70,7 @@ export default function Home() {
 
   // Effect for managing socket connection status and listeners
   useEffect(() => {
-    // message send
+    // message received
     function onChatMessage(
       chat_id: string,
       user: string,
