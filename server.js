@@ -20,7 +20,7 @@ app.prepare().then(() => {
             // For production, you'll need to set the actual domain(s) where your client app will be hosted.
             // For development, it's still localhost:3000.
             // In production, this would be e.g., "https://your-app-domain.com"
-            origin: ["https://campfire.howard-zhu.com", `http://localhost:${port}`],
+            origin: ["https://campfire.howard-zhu.com", "https://www.campfire.howard-zhu.com", `http://localhost:${port}`, "https://cf.howard-zhu.com"],
             methods: ["GET", "POST"]
         }
     });
