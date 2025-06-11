@@ -157,8 +157,10 @@ export default function Home() {
         alert(error);
       } else {
         // todo: on success, get browser storage for list of chats
+        // user.uid (key)
         // todo: add chat to fetched list
-        // todo: setChats(updated list)
+        // todo: setChats(updated list) // this just updates the ui
+        // todo: update browser storage for user.uid (list of channels)
 
         await getChatsForUser(); // todo: remove this
         setNewChatName(""); // reset text box
@@ -208,24 +210,29 @@ export default function Home() {
   }
 
   async function getChatsForUser() {
-    // todo: try to fetch list of chats from local storage
     setChatsLoading(true);
+    if (user) {
+      // todo: try to fetch list of chats from local storage
+      // fetch by uid
 
-    const response = await fetch("/api/chat/get-user-chats", {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+      // if doesn't exist:
+      const response = await fetch("/api/chat/get-user-chats", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-    const { result, error } = await response.json();
+      const { result, error } = await response.json();
 
-    if (error) {
-      console.log(error);
-      alert("ERROR " + error);
-    } else {
-      setChats(result);
-      setChatsLoading(false);
+      if (error) {
+        console.log(error);
+        alert("ERROR " + error);
+      } else {
+        setChats(result);
+        setChatsLoading(false);
+        // todo: set {uid: chats} in storage/cache
+      }
     }
   }
 
