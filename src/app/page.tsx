@@ -10,8 +10,7 @@ if (typeof window !== "undefined") {
   // Use a public environment variable (NEXT_PUBLIC_ prefix)
   // for the client to know the server URL.
   // In production, this would be your deployed backend URL.
-  const SOCKET_SERVER_URL =
-    process.env.NEXT_PUBLIC_SOCKET_SERVER_URL || "http://localhost:3000";
+  const SOCKET_SERVER_URL = "https://campfire.howard-zhu.com/";
   socket = io(SOCKET_SERVER_URL);
 }
 
