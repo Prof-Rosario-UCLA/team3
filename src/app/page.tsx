@@ -7,8 +7,12 @@ import { io, Socket } from "socket.io-client"; // Import Socket type for better 
 
 let socket: Socket | null = null;
 if (typeof window !== "undefined") {
-  // Only initialize in the browser environment
-  socket = io("http://localhost:3000");
+  // Use a public environment variable (NEXT_PUBLIC_ prefix)
+  // for the client to know the server URL.
+  // In production, this would be your deployed backend URL.
+  const SOCKET_SERVER_URL =
+    process.env.NEXT_PUBLIC_SOCKET_SERVER_URL || "http://localhost:3000";
+  socket = io(SOCKET_SERVER_URL);
 }
 
 interface Chat {
