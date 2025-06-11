@@ -57,6 +57,13 @@ jobs:
         location: ${{ env.GKE_ZONE }}
         project_id: ${{ env.PROJECT_ID }}
         # credentials: ${{ secrets.GKE_SA_KEY }}
+    
+    # In your GitHub Actions workflow step, AFTER you have authenticated to GCP/GKE
+    - name: Create Kubernetes .env Secret
+      run: |
+        kubectl create secret generic firebase-json \
+          --from-literal=firebase-admin-sdk.json="${{ secrets.FIREBASE_JSON }}" \
+          --overwrite=true # Use overwrite if updating an existing secret
 
     # Build the Docker image
     - name: Build
@@ -74,7 +81,6 @@ jobs:
           --build-arg NEXT_PUBLIC_FIREBASE_APP_ID="${{ secrets.NEXT_PUBLIC_FIREBASE_APP_ID }}"\
           --build-arg NEXT_PUBLIC_SOCKET_SERVER_URL="${{ secrets.NEXT_PUBLIC_SOCKET_SERVER_URL }}"\
           --build-arg NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID="${{ secrets.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID }}"\
-          --build-arg GOOGLE_APPLICATION_CREDENTIALS="${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}" \
           .
 
     # Push the Docker image to Google Container Registry
