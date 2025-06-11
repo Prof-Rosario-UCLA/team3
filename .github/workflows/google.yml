@@ -57,13 +57,7 @@ jobs:
         location: ${{ env.GKE_ZONE }}
         project_id: ${{ env.PROJECT_ID }}
         # credentials: ${{ secrets.GKE_SA_KEY }}
-    
-    # In your GitHub Actions workflow step, AFTER you have authenticated to GCP/GKE
-    - name: Create Kubernetes .env Secret
-      run: |
-        kubectl create secret generic firebase-json \
-          --from-literal=firebase-admin-sdk.json="${{ secrets.FIREBASE_JSON }}" \
-          --overwrite=true # Use overwrite if updating an existing secret
+
 
     # Build the Docker image
     - name: Build
