@@ -7,9 +7,6 @@ import { io, Socket } from "socket.io-client"; // Import Socket type for better 
 
 let socket: Socket | null = null;
 if (typeof window !== "undefined") {
-  // Use a public environment variable (NEXT_PUBLIC_ prefix)
-  // for the client to know the server URL.
-  // In production, this would be your deployed backend URL.
   const SOCKET_SERVER_URL = "https://campfire.howard-zhu.com/";
   socket = io(SOCKET_SERVER_URL);
 }
@@ -45,10 +42,6 @@ interface Message {
 }
 
 export default function Home() {
-  // WEBSOCKET SETUP
-  // const [isConnected, setIsConnected] = useState(false);
-  // const [transport, setTransport] = useState("N/A");
-
   const { user, token, signInWithGoogle, signOutUser } = useAuth();
 
   const [messages, setMessages] = useState<Message[]>([]);
@@ -77,6 +70,7 @@ export default function Home() {
 
   // Effect for managing socket connection status and listeners
   useEffect(() => {
+    // message send
     function onChatMessage(
       chat_id: string,
       user: string,
@@ -101,18 +95,10 @@ export default function Home() {
     }
 
     function onConnect() {
-      // setIsConnected(true);
-      // setTransport(socket!.io.engine.transport.name); // Using socket! as it's checked above
-
-      // socket!.io.engine.on("upgrade", (transport) => {
-      //   setTransport(transport.name);
-      // });
       console.log("Socket connected:", socket!.id);
     }
 
     function onDisconnect() {
-      // setIsConnected(false);
-      // setTransport("N/A");
       console.log("Socket disconnected:", socket!.id);
     }
 
@@ -324,39 +310,6 @@ export default function Home() {
     getChatContents(selectedChatId);
   }, [user]);
 
-  // const messages = [
-  //   {
-  //     id: "1",
-  //     text: "Hey everyone, welcome to the chat!",
-  //     senderId: "user1",
-  //     timestamp: new Date(),
-  //   },
-  //   {
-  //     id: "2",
-  //     text: "Glad to be here!",
-  //     senderId: "user2",
-  //     timestamp: new Date(),
-  //   },
-  //   {
-  //     id: "3",
-  //     text: "This is a simple frontend skeleton.",
-  //     senderId: "user1",
-  //     timestamp: new Date(),
-  //   },
-  //   {
-  //     id: "4",
-  //     text: "No backend logic yet!",
-  //     senderId: "user2",
-  //     timestamp: new Date(),
-  //   },
-  // ];
-
-  // const chats = [
-  //   { id: "chat-1", name: "Chat 1" },
-  //   { id: "chat-2", name: "Chat 2" },
-  //   { id: "chat-3", name: "Chat 3" },
-  //   { id: "chat-4", name: "General Discussion" },
-  // ];
   if (user !== null && user !== undefined) {
     return (
       <div className="flex h-screen bg-gray-800 text-gray-100 font-inter">
@@ -380,7 +333,7 @@ export default function Home() {
             </button>
           </div>
           <br></br>
-          {chatsLoading === true ? (
+          {chatsLoading ? (
             <p className="text-white">Loading your Channels...</p>
           ) : (
             <ul className="space-y-2">
