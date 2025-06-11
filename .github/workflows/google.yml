@@ -16,7 +16,7 @@ on:
 
 env:
   PROJECT_ID: ${{ secrets.GKE_PROJECT }}
-  GKE_CLUSTER: autopilot-cluster    # Add your cluster name here.
+  GKE_CLUSTER: campfire-gke    # Add your cluster name here.
   GKE_ZONE: us-west1   # Add your cluster zone here.
   DEPLOYMENT_NAME: campfire-deployment # Add your deployment name here.
   IMAGE: campfire-server
