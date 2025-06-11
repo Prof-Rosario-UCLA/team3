@@ -155,13 +155,14 @@ export default function Home() {
       // todo: stop on error
       if (error) {
         alert(error);
-      }
-      // todo: on success, get browser storage for list of chats
-      // todo: add chat to fetched list
-      // todo: setChats(updated list)
+      } else {
+        // todo: on success, get browser storage for list of chats
+        // todo: add chat to fetched list
+        // todo: setChats(updated list)
 
-      await getChatsForUser(); // todo: remove this
-      setNewChatName(""); // reset text box
+        await getChatsForUser(); // todo: remove this
+        setNewChatName(""); // reset text box
+      }
     }
   }
 
@@ -175,6 +176,7 @@ export default function Home() {
           content: "",
         },
       ]);
+      // todo: try to grab by chat ID from storage
       const response = await fetch("/api/chat/get-chat-contents/" + chat_id, {
         method: "GET",
       });
@@ -305,13 +307,10 @@ export default function Home() {
     if (user === null || user === undefined) {
       return;
     }
-
     createUser();
 
     console.log("Fetching Channels for user");
     getChatsForUser();
-
-    getChatContents(selectedChatId);
   }, [user]);
 
   if (user !== null && user !== undefined) {
