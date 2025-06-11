@@ -7,7 +7,7 @@ import { io, Socket } from "socket.io-client"; // Import Socket type for better 
 
 let socket: Socket | null = null;
 if (typeof window !== "undefined") {
-  const SOCKET_SERVER_URL = "https://campfire.howard-zhu.com/";
+  const SOCKET_SERVER_URL = "http://localhost:3000/";
   socket = io(SOCKET_SERVER_URL);
 }
 
@@ -152,12 +152,16 @@ export default function Home() {
 
       const { error } = await response.json();
 
+      // todo: stop on error
       if (error) {
         alert(error);
       }
+      // todo: on success, get browser storage for list of chats
+      // todo: add chat to fetched list
+      // todo: setChats(updated list)
 
-      await getChatsForUser();
-      setNewChatName("");
+      await getChatsForUser(); // todo: remove this
+      setNewChatName(""); // reset text box
     }
   }
 
@@ -202,6 +206,7 @@ export default function Home() {
   }
 
   async function getChatsForUser() {
+    // todo: try to fetch list of chats from local storage
     setChatsLoading(true);
 
     const response = await fetch("/api/chat/get-user-chats", {
