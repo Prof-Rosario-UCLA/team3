@@ -13,7 +13,17 @@ const app = next({ dev, hostname, port }); // Pass dynamic hostname and port to 
 const handler = app.getRequestHandler();
 
 app.prepare().then(() => {
-    const httpServer = createServer(handler);
+    const httpServer = createServer((req, res) => {
+        // Add a health check endpoint
+        if (req.url === "/healthz") {
+            res.writeHead(200, { "Content-Type": "text/plain" });
+            res.end("OK");
+            return;
+        }
+
+        // Pass all other requests to Next.js
+        handler(req, res);
+    });
 
     const io = new Server(httpServer, {
         cors: {
