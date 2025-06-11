@@ -23,6 +23,8 @@ spec:
             value: "3000"
           - name: NODE_ENV
             value: "production"
+          - name: GOOGLE_APPLICATION_CREDENTIALS
+            value: "/etc/secrets/firebase/firebase-admin-sdk.json"
         resources:
           requests:
             memory: "1Gi"
@@ -30,3 +32,19 @@ spec:
           limits:
             memory: "1Gi"
             cpu: "500m"
+        volumeMounts:
+        - name: firebase-admin-secret-volume # A name for this specific volume mount
+          mountPath: "/etc/secrets/firebase" # The directory path inside the container
+          readOnly: true # Recommended for secrets
+
+        # --- CRITICAL: Volume Definition for Firebase Admin SDK Key ---
+        # This defines the volume that references your Kubernetes Secret.
+        volumes:
+        - name: firebase-admin-secret-volume # Must match the 'name' in volumeMounts
+          secret:
+            secretName: firebase-json # <-- This must match the name of the secret you created
+            items:
+              - key: firebase-admin-sdk.json # <-- The key (filename) within the secret you want to mount
+                path: firebase-admin-sdk.json # <-- The filename it will have inside the mountPath (e.g., /etc/secrets/firebase/firebase-admin-sdk.json)
+        # --- END CRITICAL ---
+        
