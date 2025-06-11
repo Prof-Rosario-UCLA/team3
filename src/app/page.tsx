@@ -169,32 +169,34 @@ export default function Home() {
   }
 
   async function getChatContents(chat_id: string) {
-    if (chat_id) {
-      setMessagesLoading(true);
-      setMessages([
-        {
-          user: "",
-          timestamp: "",
-          content: "",
-        },
-      ]);
-      // todo: try to grab by chat ID from storage
-      const response = await fetch("/api/chat/get-chat-contents/" + chat_id, {
-        method: "GET",
-      });
-
-      const { result, error } = await response.json();
-
-      if (error) {
-        console.log(error);
-        alert("ERROR " + error);
-      } else {
-        if (result) {
-          setMessages(result.messages);
-        }
-      }
-      setMessagesLoading(false);
+    if (chat_id === null || chat_id === undefined) {
+      console.log("null or undefined chat_id for gatChatContents");
+      return;
     }
+    setMessagesLoading(true);
+    setMessages([
+      {
+        user: "",
+        timestamp: "",
+        content: "",
+      },
+    ]);
+    // todo: try to grab by chat ID from storage
+    const response = await fetch("/api/chat/get-chat-contents/" + chat_id, {
+      method: "GET",
+    });
+
+    const { result, error } = await response.json();
+
+    if (error) {
+      console.log(error);
+      alert("ERROR " + error);
+    } else {
+      if (result) {
+        setMessages(result.messages);
+      }
+    }
+    setMessagesLoading(false);
   }
 
   async function loadMessages(
@@ -203,7 +205,11 @@ export default function Home() {
     member_emails: string[]
   ) {
     console.log("Loading chat messages for " + chat_id);
+
+    // get messages
     await getChatContents(chat_id);
+
+    // ui things
     setSelectedChatId(chat_id);
     setSelectedChat(chat_name);
     setSelectedChatEmails(member_emails);
