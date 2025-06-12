@@ -450,7 +450,7 @@ export default function Home() {
           <div className="flex">
             <input
               placeholder="Channel Name..."
-              className="inline-flex items-center gap-x-3 py-3 px-4 cursor-grab text-sm font-medium bg-white border border-gray-200 text-gray-800 -mt-px first:rounded-t-lg first:mt-0 last:rounded-b-lg"
+              className="inline-flex items-centerp-3 rounded-md bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 w-3/4 mr-1 mb-4"
               value={newChatName}
               onChange={(e) => {
                 setNewChatName(e.target.value);
@@ -473,7 +473,7 @@ export default function Home() {
                   key={chat.id}
                   className={`p-2 rounded-md ${
                     selectedChatId === chat.id ? "bg-gray-700" : ""
-                  } hover:bg-gray-600 transition-colors inline-flex items-center gap-x-3 py-3 px-4 cursor-grab text-sm font-medium bg-white border border-gray-200 text-gray-800 -mt-px first:rounded-t-lg first:mt-0 last:rounded-b-lg`}
+                  } hover:bg-gray-600 transition-colors inline-flex items-center gap-x-3 py-3 px-4 cursor-grab`}
                   onClick={() => {
                     loadMessages(chat.id, chat.name, chat.member_emails);
                     setShowSidebar(false);
