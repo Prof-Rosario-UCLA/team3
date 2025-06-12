@@ -222,20 +222,20 @@ export default function Home() {
     ]);
 
     const now = new Date();
-    const diff = now.getUTCSeconds()-last_time.getUTCSeconds();
+    const diff = now.getUTCSeconds() - last_time.getUTCSeconds();
     console.log("diff", diff);
     if (diff > 5 && user) {
       setLastTime(now);
       const chats = getChatsByUser(user.uid);
-      if (chats){
-        chats.forEach(async (chat:Chat) => {
+      if (chats) {
+        chats.forEach(async (chat: Chat) => {
           console.log("getting api for chat id", chat.id);
           await getMessagesAPI(chat.id);
-        })
+        });
       }
     } else {
       // fix negative diff bug
-      if (diff < 0){
+      if (diff < 0) {
         console.log("fixed timer");
         setLastTime(now);
       }
