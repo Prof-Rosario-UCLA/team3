@@ -29,26 +29,7 @@ interface Message {
   // Add any other properties your message object might have
 }
 
-interface Chat {
-  id: string; // Or number, depending on your actual ID type
-  name: string;
-  member_emails: string[];
-  // Add any other properties your chat object might have
-}
-
-// Define an interface for your message object
-interface Message {
-  user: string;
-  timestamp: string;
-  content: string;
-  // Add any other properties your message object might have
-}
-
 export default function Home() {
-  // WEBSOCKET SETUP
-  // const [isConnected, setIsConnected] = useState(false);
-  // const [transport, setTransport] = useState("N/A");
-
   const { user, token, signInWithGoogle, signOutUser } = useAuth();
 
   const [messages, setMessages] = useState<Message[]>([]);
@@ -79,6 +60,7 @@ export default function Home() {
 
   // Effect for managing socket connection status and listeners
   useEffect(() => {
+    // message received
     function onChatMessage(
       chat_id: string,
       user: string,
@@ -98,23 +80,23 @@ export default function Home() {
             content,
           },
         ]);
+        // ui comes first
         scrollToBottom(); // Scroll after new message
+
+        // get messages by chat_id
+        const messages = getMessagesByChat(chat_id);
+        if (messages) {
+          messages.push({user, timestamp, content});
+          setMessagesByChatIDInCache(chat_id, messages);
+        }
       }
     }
 
     function onConnect() {
-      // setIsConnected(true);
-      // setTransport(socket!.io.engine.transport.name); // Using socket! as it's checked above
-
-      // socket!.io.engine.on("upgrade", (transport) => {
-      //   setTransport(transport.name);
-      // });
       console.log("Socket connected:", socket!.id);
     }
 
     function onDisconnect() {
-      // setIsConnected(false);
-      // setTransport("N/A");
       console.log("Socket disconnected:", socket!.id);
     }
 
@@ -145,6 +127,48 @@ export default function Home() {
     scrollToBottom();
   }, [messages]);
 
+  function getChatsByUser(user_id: string) {
+    console.log("trying to get chats by user ID", user_id);
+    const grabbed = localStorage.getItem(user_id);
+    if (grabbed) {
+      console.log("got chats by user id from cache", user_id);
+      const parsed = JSON.parse(grabbed);
+      const out:never[] = [];
+      parsed.forEach((chat: never) => {
+        out.push(chat);
+      })
+      return out;
+    } else {
+      return null;
+    }
+  }
+
+  function getMessagesByChat(chat_id: string) {
+    console.log("trying to messages chats by chat ID", chat_id);
+    const grabbed = localStorage.getItem(chat_id);
+    if (grabbed) {
+      console.log("got messages for chat from cache:", chat_id);
+      const parsed = JSON.parse(grabbed);
+      const out:Message[] = [];
+      parsed.forEach((msg: Message) => {
+        out.push(msg);
+      })
+      return out;
+    } else {
+      return null;
+    }
+  }
+
+  function setMessagesByChatIDInCache(list_key: string, list: Message[]) {
+    console.log("saved list for key:", list_key);
+    localStorage.setItem(list_key, JSON.stringify(list));
+  }
+
+  function setChatsByUserID(list_key: string, list: Chat[]) {
+    console.log("saved list for key:", list_key);
+    localStorage.setItem(list_key, JSON.stringify(list));
+  }
+
   async function createUser() {
     await fetch("/api/user/create", {
       method: "POST",
@@ -171,23 +195,38 @@ export default function Home() {
 
       if (error) {
         alert(error);
+      } else {
+        // on success, get API for chats
+        // can't grab from cache because we don't know the ID the server will give it
+        await getChatsAPI();
+        setNewChatName(""); // reset text box
       }
-
-      await getChatsForUser();
-      setNewChatName("");
     }
   }
 
   async function getChatContents(chat_id: string) {
-    if (chat_id) {
-      setMessagesLoading(true);
-      setMessages([
-        {
-          user: "",
-          timestamp: "",
-          content: "",
-        },
-      ]);
+    if (chat_id === null || chat_id === undefined) {
+      console.log("null or undefined chat_id for gatChatContents");
+      return;
+    }
+    // ui things
+    setMessagesLoading(true);
+    setMessages([
+      {
+        user: "",
+        timestamp: "",
+        content: "",
+      },
+    ]);
+
+    // back end things
+    // try to grab by chat ID from storage
+    const messages = getMessagesByChat(chat_id);
+    if (messages) {
+      setMessages(messages);
+      setMessagesLoading(false);
+    } else {
+      // if it doesn't exist, try fetching
       const response = await fetch("/api/chat/get-chat-contents/" + chat_id, {
         method: "GET",
       });
@@ -200,9 +239,12 @@ export default function Home() {
       } else {
         if (result) {
           setMessages(result.messages);
+          setMessagesLoading(false);
+          // set browser storage
+          // chat_id -> list of messages
+          setMessagesByChatIDInCache(chat_id, result.messages);
         }
       }
-      setMessagesLoading(false);
     }
   }
 
@@ -212,15 +254,17 @@ export default function Home() {
     member_emails: string[]
   ) {
     console.log("Loading chat messages for " + chat_id);
+
+    // get messages
     await getChatContents(chat_id);
+
+    // ui things
     setSelectedChatId(chat_id);
     setSelectedChat(chat_name);
     setSelectedChatEmails(member_emails);
   }
 
-  async function getChatsForUser() {
-    setChatsLoading(true);
-
+  async function getChatsAPI() {
     const response = await fetch("/api/chat/get-user-chats", {
       method: "GET",
       headers: {
@@ -236,6 +280,26 @@ export default function Home() {
     } else {
       setChats(result);
       setChatsLoading(false);
+      // set {uid: chats} in storage/cache
+      if (user) {
+        setChatsByUserID(user.uid, result);
+      }
+    }
+  }
+
+  async function getChatsForUser() {
+    setChatsLoading(true);
+    if (user) {
+      // try to fetch list of chats from local storage
+      // fetch by uid
+      const chats = getChatsByUser(user.uid);
+      if (chats) {
+        setChats(chats);
+        setChatsLoading(false);
+      } else {
+        // get from API
+        await getChatsAPI();
+      }
     }
   }
 
@@ -317,48 +381,11 @@ export default function Home() {
     if (user === null || user === undefined) {
       return;
     }
-
     createUser();
 
     console.log("Fetching Channels for user");
     getChatsForUser();
-
-    getChatContents(selectedChatId);
   }, [user]);
-
-  // const messages = [
-  //   {
-  //     id: "1",
-  //     text: "Hey everyone, welcome to the chat!",
-  //     senderId: "user1",
-  //     timestamp: new Date(),
-  //   },
-  //   {
-  //     id: "2",
-  //     text: "Glad to be here!",
-  //     senderId: "user2",
-  //     timestamp: new Date(),
-  //   },
-  //   {
-  //     id: "3",
-  //     text: "This is a simple frontend skeleton.",
-  //     senderId: "user1",
-  //     timestamp: new Date(),
-  //   },
-  //   {
-  //     id: "4",
-  //     text: "No backend logic yet!",
-  //     senderId: "user2",
-  //     timestamp: new Date(),
-  //   },
-  // ];
-
-  // const chats = [
-  //   { id: "chat-1", name: "Chat 1" },
-  //   { id: "chat-2", name: "Chat 2" },
-  //   { id: "chat-3", name: "Chat 3" },
-  //   { id: "chat-4", name: "General Discussion" },
-  // ];
   if (user !== null && user !== undefined) {
     return (
       <div className="flex h-screen bg-gray-800 text-gray-100 font-inter">
@@ -368,7 +395,13 @@ export default function Home() {
             showSidebar ? "flex-1 w-screen" : "hidden"
           }`}
         >
-          <h2 className="text-xl font-bold mb-4 text-white">Channels</h2>
+          <h2 className="text-xl font-bold mb-4 text-white">Channels
+          <button
+              onClick={getChatsAPI}
+              className="bg-gray-700 hover:bg-gray-600 rounded-md p-2 text-2xl w-1/4"
+          >
+            o
+          </button></h2>
           <div className="flex">
             <input
               placeholder="Channel Name..."
@@ -386,7 +419,7 @@ export default function Home() {
             </button>
           </div>
           <br></br>
-          {chatsLoading === true ? (
+          {chatsLoading ? (
             <p className="text-white">Loading your Channels...</p>
           ) : (
             <ul className="space-y-2">
