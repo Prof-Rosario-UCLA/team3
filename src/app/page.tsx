@@ -86,7 +86,7 @@ export default function Home() {
         // get messages by chat_id
         const messages = getMessagesByChat(chat_id);
         if (messages) {
-          messages.push({user, timestamp, content});
+          messages.push({ user, timestamp, content });
           setMessagesByChatIDInCache(chat_id, messages);
         }
       }
@@ -133,10 +133,10 @@ export default function Home() {
     if (grabbed) {
       console.log("got chats by user id from cache", user_id);
       const parsed = JSON.parse(grabbed);
-      const out:never[] = [];
+      const out: never[] = [];
       parsed.forEach((chat: never) => {
         out.push(chat);
-      })
+      });
       return out;
     } else {
       return null;
@@ -149,10 +149,10 @@ export default function Home() {
     if (grabbed) {
       console.log("got messages for chat from cache:", chat_id);
       const parsed = JSON.parse(grabbed);
-      const out:Message[] = [];
+      const out: Message[] = [];
       parsed.forEach((msg: Message) => {
         out.push(msg);
-      })
+      });
       return out;
     } else {
       return null;
@@ -395,13 +395,14 @@ export default function Home() {
             showSidebar ? "flex-1 w-screen" : "hidden"
           }`}
         >
-          <h2 className="text-xl font-bold mb-4 text-white">Channels
+          <h2 className="text-xl font-bold mb-4 text-white">Channels</h2>
           <button
-              onClick={getChatsAPI}
-              className="bg-gray-700 hover:bg-gray-600 rounded-md p-2 text-2xl w-1/4"
+            onClick={getChatsAPI}
+            className="bg-gray-700 hover:bg-gray-600 rounded-md p-1 max-w-36"
           >
-            o
-          </button></h2>
+            Refresh Channels
+          </button>
+          <br></br>
           <div className="flex">
             <input
               placeholder="Channel Name..."
