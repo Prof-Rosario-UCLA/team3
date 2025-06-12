@@ -56,6 +56,8 @@ export default function Home() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
+  const [last_time, setLastTime] = useState(new Date());
+
   // Effect for managing socket connection status and listeners
   useEffect(() => {
     // message received
@@ -217,31 +219,27 @@ export default function Home() {
       },
     ]);
 
-    // back end things
-    // try to grab by chat ID from storage
-    const messages = getMessagesByChat(chat_id);
-    if (messages) {
-      setMessages(messages);
-      setMessagesLoading(false);
+    const now = new Date();
+    const diff = now.getUTCSeconds()-last_time.getUTCSeconds();
+    console.log("diff", diff);
+    if (diff > 5 && user) {
+      setLastTime(now);
+      const chats = getChatsByUser(user.uid);
+      if (chats){
+        chats.forEach(async (chat:Chat) => {
+          console.log("getting api for chat id", chat.id);
+          await getMessagesAPI(chat.id);
+        })
+      }
     } else {
-      // if it doesn't exist, try fetching
-      const response = await fetch("/api/chat/get-chat-contents/" + chat_id, {
-        method: "GET",
-      });
-
-      const { result, error } = await response.json();
-
-      if (error) {
-        console.log(error);
-        alert("ERROR " + error);
+      // back end things
+      // try to grab by chat ID from storage
+      const messages = getMessagesByChat(chat_id);
+      if (messages) {
+        setMessages(messages);
+        setMessagesLoading(false);
       } else {
-        if (result) {
-          setMessages(result.messages);
-          setMessagesLoading(false);
-          // set browser storage
-          // chat_id -> list of messages
-          setMessagesByChatIDInCache(chat_id, result.messages);
-        }
+        await getMessagesAPI(chat_id);
       }
     }
   }
@@ -260,6 +258,27 @@ export default function Home() {
     setSelectedChatId(chat_id);
     setSelectedChat(chat_name);
     setSelectedChatEmails(member_emails);
+  }
+
+  async function getMessagesAPI(chat_id: string) {
+    const response = await fetch("/api/chat/get-chat-contents/" + chat_id, {
+      method: "GET",
+    });
+
+    const { result, error } = await response.json();
+
+    if (error) {
+      console.log(error);
+      alert("ERROR " + error);
+    } else {
+      if (result) {
+        setMessages(result.messages);
+        setMessagesLoading(false);
+        // set browser storage
+        // chat_id -> list of messages
+        setMessagesByChatIDInCache(chat_id, result.messages);
+      }
+    }
   }
 
   async function getChatsAPI() {
