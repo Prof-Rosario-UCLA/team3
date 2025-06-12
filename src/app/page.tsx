@@ -26,21 +26,6 @@ interface Message {
   // Add any other properties your message object might have
 }
 
-interface Chat {
-  id: string; // Or number, depending on your actual ID type
-  name: string;
-  member_emails: string[];
-  // Add any other properties your chat object might have
-}
-
-// Define an interface for your message object
-interface Message {
-  user: string;
-  timestamp: string;
-  content: string;
-  // Add any other properties your message object might have
-}
-
 export default function Home() {
   const { user, token, signInWithGoogle, signOutUser } = useAuth();
 
@@ -90,16 +75,15 @@ export default function Home() {
             content,
           },
         ]);
-        // todo: get messages by chat_id
-        // add to messages:
-        // {
-        //   user,
-        //       timestamp,
-        //       content,
-        // }
-        // todo: save new array to local storage
-
+        // ui comes first
         scrollToBottom(); // Scroll after new message
+
+        // get messages by chat_id
+        const messages = getMessagesByChat(chat_id);
+        if (messages) {
+          messages.push({user, timestamp, content});
+          setMessagesByChatIDInCache(chat_id, messages);
+        }
       }
     }
 
@@ -137,6 +121,48 @@ export default function Home() {
     scrollToBottom();
   }, [messages]);
 
+  function getChatsByUser(user_id: string) {
+    console.log("trying to get chats by user ID", user_id);
+    const grabbed = localStorage.getItem(user_id);
+    if (grabbed) {
+      console.log("got chats by user id from cache", user_id);
+      const parsed = JSON.parse(grabbed);
+      const out:never[] = [];
+      parsed.forEach((chat: never) => {
+        out.push(chat);
+      })
+      return out;
+    } else {
+      return null;
+    }
+  }
+
+  function getMessagesByChat(chat_id: string) {
+    console.log("trying to messages chats by chat ID", chat_id);
+    const grabbed = localStorage.getItem(chat_id);
+    if (grabbed) {
+      console.log("got messages for chat from cache:", chat_id);
+      const parsed = JSON.parse(grabbed);
+      const out:Message[] = [];
+      parsed.forEach((msg: Message) => {
+        out.push(msg);
+      })
+      return out;
+    } else {
+      return null;
+    }
+  }
+
+  function setMessagesByChatIDInCache(list_key: string, list: Message[]) {
+    console.log("saved list for key:", list_key);
+    localStorage.setItem(list_key, JSON.stringify(list));
+  }
+
+  function setChatsByUserID(list_key: string, list: Chat[]) {
+    console.log("saved list for key:", list_key);
+    localStorage.setItem(list_key, JSON.stringify(list));
+  }
+
   async function createUser() {
     await fetch("/api/user/create", {
       method: "POST",
@@ -161,17 +187,12 @@ export default function Home() {
 
       const { error } = await response.json();
 
-      // todo: stop on error
       if (error) {
         alert(error);
       } else {
-        // todo: on success, get browser storage for list of chats
-        // user.uid (key)
-        // todo: add chat to fetched list
-        // todo: setChats(updated list) // this just updates the ui
-        // todo: update browser storage for user.uid (list of channels)
-
-        await getChatsForUser(); // todo: remove this
+        // on success, get API for chats
+        // can't grab from cache because we don't know the ID the server will give it
+        await getChatsAPI();
         setNewChatName(""); // reset text box
       }
     }
@@ -193,27 +214,32 @@ export default function Home() {
     ]);
 
     // back end things
-    // todo: try to grab by chat ID from storage
-    // if it doesn't exist, try fetching
-    const response = await fetch("/api/chat/get-chat-contents/" + chat_id, {
-      method: "GET",
-    });
-
-    const { result, error } = await response.json();
-
-    if (error) {
-      console.log(error);
-      alert("ERROR " + error);
+    // try to grab by chat ID from storage
+    const messages = getMessagesByChat(chat_id);
+    if (messages) {
+      setMessages(messages);
+      setMessagesLoading(false);
     } else {
-      if (result) {
-        setMessages(result.messages);
-        // todo: set browser storage
-        // chat_id -> list of messages
+      // if it doesn't exist, try fetching
+      const response = await fetch("/api/chat/get-chat-contents/" + chat_id, {
+        method: "GET",
+      });
+
+      const { result, error } = await response.json();
+
+      if (error) {
+        console.log(error);
+        alert("ERROR " + error);
+      } else {
+        if (result) {
+          setMessages(result.messages);
+          setMessagesLoading(false);
+          // set browser storage
+          // chat_id -> list of messages
+          setMessagesByChatIDInCache(chat_id, result.messages);
+        }
       }
     }
-
-    // ui
-    setMessagesLoading(false);
   }
 
   async function loadMessages(
@@ -232,29 +258,41 @@ export default function Home() {
     setSelectedChatEmails(member_emails);
   }
 
+  async function getChatsAPI() {
+    const response = await fetch("/api/chat/get-user-chats", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const { result, error } = await response.json();
+
+    if (error) {
+      console.log(error);
+      alert("ERROR " + error);
+    } else {
+      setChats(result);
+      setChatsLoading(false);
+      // set {uid: chats} in storage/cache
+      if (user) {
+        setChatsByUserID(user.uid, result);
+      }
+    }
+  }
+
   async function getChatsForUser() {
     setChatsLoading(true);
     if (user) {
-      // todo: try to fetch list of chats from local storage
+      // try to fetch list of chats from local storage
       // fetch by uid
-
-      // if doesn't exist:
-      const response = await fetch("/api/chat/get-user-chats", {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const { result, error } = await response.json();
-
-      if (error) {
-        console.log(error);
-        alert("ERROR " + error);
-      } else {
-        setChats(result);
+      const chats = getChatsByUser(user.uid);
+      if (chats) {
+        setChats(chats);
         setChatsLoading(false);
-        // todo: set {uid: chats} in storage/cache
+      } else {
+        // get from API
+        await getChatsAPI();
       }
     }
   }
@@ -348,7 +386,13 @@ export default function Home() {
       <div className="flex h-screen bg-gray-800 text-gray-100 font-inter">
         {/* Sidebar */}
         <div className="w-64 bg-gray-900 flex flex-col p-4 rounded-lg m-2 shadow-lg">
-          <h2 className="text-xl font-bold mb-4 text-white">Channels</h2>
+          <h2 className="text-xl font-bold mb-4 text-white">Channels
+          <button
+              onClick={getChatsAPI}
+              className="bg-gray-700 hover:bg-gray-600 rounded-md p-2 text-2xl w-1/4"
+          >
+            o
+          </button></h2>
           <div className="flex">
             <input
               placeholder="Channel Name..."
