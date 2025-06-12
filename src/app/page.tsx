@@ -232,6 +232,10 @@ export default function Home() {
         })
       }
     } else {
+      // fix negative diff bug
+      if (diff < 0){
+        setLastTime(now);
+      }
       // back end things
       // try to grab by chat ID from storage
       const messages = getMessagesByChat(chat_id);
