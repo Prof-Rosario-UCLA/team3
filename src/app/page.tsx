@@ -2,6 +2,7 @@
 
 import { useAuth } from "@/lib/authContext";
 import { useState, useEffect, useRef } from "react";
+import Sortable from 'sortablejs';
 
 import { io, Socket } from "socket.io-client"; // Import Socket type for better type inference
 
@@ -10,8 +11,9 @@ if (typeof window !== "undefined") {
   // Use a public environment variable (NEXT_PUBLIC_ prefix)
   // for the client to know the server URL.
   // In production, this would be your deployed backend URL.
-  const SOCKET_SERVER_URL = "https://cf.howard-zhu.com";
+  const SOCKET_SERVER_URL = "http://localhost:3000";
   socket = io(SOCKET_SERVER_URL);
+
 }
 
 interface Chat {
@@ -303,6 +305,13 @@ export default function Home() {
       alert("ERROR " + error);
     } else {
       setChats(result);
+      const sortable = document.querySelector("#Basic-sortable");
+      if (sortable) {
+        new Sortable(sortable as HTMLElement, {
+          animation: 150,
+          dragClass: '!rounded-none'
+        });
+      }
       setChatsLoading(false);
       // set {uid: chats} in storage/cache
       if (user) {
@@ -320,11 +329,19 @@ export default function Home() {
       if (chats) {
         setChats(chats);
         setChatsLoading(false);
+        const sortable = document.querySelector("#Basic-sortable");
+        if (sortable) {
+          new Sortable(sortable as HTMLElement, {
+            animation: 150,
+            dragClass: '!rounded-none'
+          });
+        }
       } else {
         // get from API
         await getChatsAPI();
       }
     }
+
   }
 
   async function addMemberToChat() {
@@ -359,6 +376,7 @@ export default function Home() {
     }
     setMessagesLoading(false);
   }
+
 
   async function sendMessage() {
     if (messageContent && user) {
@@ -409,6 +427,7 @@ export default function Home() {
 
     console.log("Fetching Channels for user");
     getChatsForUser();
+
   }, [user]);
 
   if (user !== null && user !== undefined) {
@@ -431,7 +450,7 @@ export default function Home() {
           <div className="flex">
             <input
               placeholder="Channel Name..."
-              className="p-3 rounded-md bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 w-3/4 mr-1 mb-4"
+              className="inline-flex items-center gap-x-3 py-3 px-4 cursor-grab text-sm font-medium bg-white border border-gray-200 text-gray-800 -mt-px first:rounded-t-lg first:mt-0 last:rounded-b-lg"
               value={newChatName}
               onChange={(e) => {
                 setNewChatName(e.target.value);
@@ -448,13 +467,13 @@ export default function Home() {
           {chatsLoading ? (
             <p className="text-white">Loading your Channels...</p>
           ) : (
-            <ul className="space-y-2">
+            <ul id="Basic-sortable" className="space-y-2 flex flex-col max-w-xs">
               {chats.map((chat: Chat) => (
                 <li
                   key={chat.id}
                   className={`p-2 rounded-md ${
                     selectedChatId === chat.id ? "bg-gray-700" : ""
-                  } hover:bg-gray-600 cursor-pointer transition-colors`}
+                  } hover:bg-gray-600 transition-colors inline-flex items-center gap-x-3 py-3 px-4 cursor-grab text-sm font-medium bg-white border border-gray-200 text-gray-800 -mt-px first:rounded-t-lg first:mt-0 last:rounded-b-lg`}
                   onClick={() => {
                     loadMessages(chat.id, chat.name, chat.member_emails);
                     setShowSidebar(false);
@@ -578,6 +597,7 @@ export default function Home() {
           </div>
         </section>
       </div>
+
     );
   } else if (user === null) {
     return (
