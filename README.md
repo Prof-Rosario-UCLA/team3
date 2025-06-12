@@ -5,36 +5,42 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 First, run the development server:
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## CI/CD
+The CI/CD pipeline operates in several stages
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Connecting/Auth to GKE
+    - We authenticate with Google Cloud with a created service account
+    - The email and key are stored as GitHub secrets
 
-## Learn More
+2. Build Docker Container
+    - We build the container with a tag based on the project ID and commit hash that triggered the build.
+    - We also pass in necessary secret information about our backend services during this build process.
+    - We then push the project onto our Google Cloud artifact registry.
 
-To learn more about Next.js, take a look at the following resources:
+3. Deploy to the cluster
+    - Using kustomize and several yaml files we apply them to our GKE cluster using `kubectl apply -f`
+    - We then rollout the change to the entire cluster
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## GKE
+Our GKE cluster configuration can mostly be described in the yaml files under the `docker` folder
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+`deployment.yaml`
+- Here we specify the number of replicas, the image tag, port exposure, and secret importing
 
-## Deploy on Vercel
+`ingress.yaml`
+- Here we use our HTTPS certificate, configure our static IP and set routes.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+`managed-cert.yaml`
+- Specifies an HTTPS certificate for us to use
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-
+`service.yaml`
+- Maps the HTTP port to the container port 3000
 
 ## docker
 ```dockerfile
