@@ -2,7 +2,7 @@
 
 import { useAuth } from "@/lib/authContext";
 import { useState, useEffect, useRef } from "react";
-import Sortable from 'sortablejs';
+import Sortable from "sortablejs";
 
 import { io, Socket } from "socket.io-client"; // Import Socket type for better type inference
 
@@ -11,9 +11,8 @@ if (typeof window !== "undefined") {
   // Use a public environment variable (NEXT_PUBLIC_ prefix)
   // for the client to know the server URL.
   // In production, this would be your deployed backend URL.
-  const SOCKET_SERVER_URL = "https://cf.howard-zhu.com/";
+  const SOCKET_SERVER_URL = "http://localhost:3000";
   socket = io(SOCKET_SERVER_URL);
-
 }
 
 interface Chat {
@@ -309,7 +308,7 @@ export default function Home() {
       if (sortable) {
         new Sortable(sortable as HTMLElement, {
           animation: 150,
-          dragClass: '!rounded-none'
+          dragClass: "!rounded-none",
         });
       }
       setChatsLoading(false);
@@ -333,7 +332,7 @@ export default function Home() {
         if (sortable) {
           new Sortable(sortable as HTMLElement, {
             animation: 150,
-            dragClass: '!rounded-none'
+            dragClass: "!rounded-none",
           });
         }
       } else {
@@ -341,7 +340,6 @@ export default function Home() {
         await getChatsAPI();
       }
     }
-
   }
 
   async function addMemberToChat() {
@@ -376,7 +374,6 @@ export default function Home() {
     }
     setMessagesLoading(false);
   }
-
 
   async function sendMessage() {
     if (messageContent && user) {
@@ -427,7 +424,6 @@ export default function Home() {
 
     console.log("Fetching Channels for user");
     getChatsForUser();
-
   }, [user]);
 
   if (user !== null && user !== undefined) {
@@ -467,7 +463,10 @@ export default function Home() {
           {chatsLoading ? (
             <p className="text-white">Loading your Channels...</p>
           ) : (
-            <ul id="Basic-sortable" className="space-y-2 flex flex-col max-w-xs">
+            <ul
+              id="Basic-sortable"
+              className="space-y-2 flex flex-col max-w-xs"
+            >
               {chats.map((chat: Chat) => (
                 <li
                   key={chat.id}
@@ -597,7 +596,6 @@ export default function Home() {
           </div>
         </section>
       </div>
-
     );
   } else if (user === null) {
     return (
