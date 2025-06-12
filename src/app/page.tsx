@@ -410,27 +410,28 @@ export default function Home() {
     console.log("Fetching Channels for user");
     getChatsForUser();
   }, [user]);
+
   if (user !== null && user !== undefined) {
     return (
       <div className="flex h-screen bg-gray-800 text-gray-100 font-inter">
         {/* Sidebar */}
-        <div
-          className={`sm:w-64 bg-gray-900 flex flex-col p-4 rounded-lg m-2 shadow-lg max-sm:${
+        <nav
+          className={`bg-gray-900 sm:flex sm:w-64 flex-col p-4 rounded-lg m-2 shadow-lg ${
             showSidebar ? "flex-1 w-screen" : "hidden"
           }`}
         >
           <h2 className="text-xl font-bold mb-4 text-white">Channels</h2>
           <button
             onClick={getChatsAPI}
-            className="bg-gray-700 hover:bg-gray-600 rounded-md p-1 max-w-36"
+            className="bg-gray-700 hover:bg-gray-600 rounded-md p-1 max-w-36 mb-4"
           >
             Refresh Channels
           </button>
-          <br></br>
+
           <div className="flex">
             <input
               placeholder="Channel Name..."
-              className="p-3 rounded-md bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 w-3/4 mr-1"
+              className="p-3 rounded-md bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 w-3/4 mr-1 mb-4"
               value={newChatName}
               onChange={(e) => {
                 setNewChatName(e.target.value);
@@ -438,12 +439,12 @@ export default function Home() {
             ></input>
             <button
               onClick={createChat}
-              className="bg-gray-700 hover:bg-gray-600 rounded-md p-2 text-2xl w-1/4"
+              className="bg-gray-700 hover:bg-gray-600 rounded-md p-2 text-2xl w-1/4 mb-4"
             >
               +
             </button>
           </div>
-          <br></br>
+
           {chatsLoading ? (
             <p className="text-white">Loading your Channels...</p>
           ) : (
@@ -479,11 +480,11 @@ export default function Home() {
           >
             Log out
           </button>
-        </div>
+        </nav>
         {/* Main Chat Area */}
-        <div
-          className={`flex-1 flex flex-col bg-gray-700 rounded-lg m-2 shadow-lg max-sm:${
-            showSidebar ? "hidden" : ""
+        <section
+          className={`flex-1 flex flex-col bg-gray-700 rounded-lg m-2 shadow-lg ${
+            showSidebar ? "hidden" : "flex"
           }`}
         >
           {/* Chat Header */}
@@ -575,12 +576,12 @@ export default function Home() {
               </button>
             )}
           </div>
-        </div>
+        </section>
       </div>
     );
   } else if (user === null) {
     return (
-      <div className="flex h-screen bg-gray-800 text-gray-100 font-inter justify-center items-center">
+      <section className="flex h-screen bg-gray-800 text-gray-100 font-inter justify-center items-center">
         <div>
           <p>Please Sign In!</p>
           <button
@@ -611,7 +612,7 @@ export default function Home() {
             <div />
           </button>
         </div>
-      </div>
+      </section>
     );
   } else {
     return (
