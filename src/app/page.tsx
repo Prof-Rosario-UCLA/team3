@@ -10,7 +10,7 @@ if (typeof window !== "undefined") {
   // Use a public environment variable (NEXT_PUBLIC_ prefix)
   // for the client to know the server URL.
   // In production, this would be your deployed backend URL.
-  const SOCKET_SERVER_URL = "https://cf.howard-zhu.com";
+  const SOCKET_SERVER_URL = "http://localhost:3000";
   socket = io(SOCKET_SERVER_URL);
 }
 
@@ -53,6 +53,8 @@ export default function Home() {
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [chats, setChats] = useState([]);
+
+  const [showSidebar, setShowSidebar] = useState(false);
 
   const [selectedChat, setSelectedChat] = useState("Selected Chat");
 
@@ -361,7 +363,11 @@ export default function Home() {
     return (
       <div className="flex h-screen bg-gray-800 text-gray-100 font-inter">
         {/* Sidebar */}
-        <div className="w-64 bg-gray-900 flex flex-col p-4 rounded-lg m-2 shadow-lg">
+        <div
+          className={`sm:w-64 bg-gray-900 flex flex-col p-4 rounded-lg m-2 shadow-lg max-sm:${
+            showSidebar ? "flex-1 w-screen" : "hidden"
+          }`}
+        >
           <h2 className="text-xl font-bold mb-4 text-white">Channels</h2>
           <div className="flex">
             <input
@@ -392,6 +398,7 @@ export default function Home() {
                   } hover:bg-gray-600 cursor-pointer transition-colors`}
                   onClick={() => {
                     loadMessages(chat.id, chat.name, chat.member_emails);
+                    setShowSidebar(false);
                   }}
                 >
                   {chat.name}
@@ -416,9 +423,19 @@ export default function Home() {
           </button>
         </div>
         {/* Main Chat Area */}
-        <div className="flex-1 flex flex-col bg-gray-700 rounded-lg m-2 shadow-lg">
+        <div
+          className={`flex-1 flex flex-col bg-gray-700 rounded-lg m-2 shadow-lg max-sm:${
+            showSidebar ? "hidden" : ""
+          }`}
+        >
           {/* Chat Header */}
-          <div className="p-4 bg-gray-900 rounded-t-lg flex items-center justify-between">
+          <button
+            className="bg-gray-800 active:bg-gray-600 rounded-t-md p-2 sm:hidden"
+            onClick={() => setShowSidebar(true)}
+          >
+            {`<`} Back to Channels/Account
+          </button>
+          <div className="p-4 bg-gray-900 flex items-center justify-between sm:rounded-t-lg">
             <h2 className="text-xl font-bold text-white">{selectedChat}</h2>
             {messages.length > 0 && (
               <div className="flex">
