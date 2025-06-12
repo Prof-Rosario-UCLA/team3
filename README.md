@@ -2,7 +2,12 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
-First, run the development server:
+To see the deployed app, visit this website: [https://campfire.howard-zhu.com/](https://campfire.howard-zhu.com/)
+
+To run locally, you will need to change SOCKET_SERVER_URL on line 14 of src/app/page.tsx. 
+Otherwise, it will attempt to connect to the deployment server but be rejected due to mismatching domains.
+
+Afterward, run the development server:
 
 ```bash
 npm install
