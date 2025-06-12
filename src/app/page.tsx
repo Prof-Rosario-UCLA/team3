@@ -234,6 +234,7 @@ export default function Home() {
     } else {
       // fix negative diff bug
       if (diff < 0){
+        console.log("fixed timer");
         setLastTime(now);
       }
       // back end things
