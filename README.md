@@ -7,6 +7,40 @@ To see the deployed app, visit this website: [https://campfire.howard-zhu.com/](
 To run locally, you will need to change SOCKET_SERVER_URL on line 14 of src/app/page.tsx to "http://localhost:3000".
 Otherwise, it will attempt to connect to the deployment server but be rejected due to mismatching domains.
 
+You will also need to configure a `.env` file in the root directory
+
+```
+NEXT_PUBLIC_FIREBASE_API_KEY=...
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=...
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=...
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=...
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=...
+NEXT_PUBLIC_FIREBASE_APP_ID=...
+NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=...
+GOOGLE_APPLICATION_CREDENTIALS="./firebase-admin-sdk.json"
+```
+
+Along with a `firebase-admin-sdk.json` file in the root directory
+
+```
+{
+  "type": ...,
+  "project_id": ...,
+  "private_key_id": ...,
+  "private_key": ...,
+  "client_email": ...,
+  "client_id": ...,
+  "auth_uri": ...,
+  "token_uri": ...,
+  "auth_provider_x509_cert_url": ...,
+  "client_x509_cert_url": ...,
+  "universe_domain": ..."
+}
+
+```
+Both of these files should be provided by the firebase admin console. 
+
+
 Afterward, run the development server:
 
 ```bash
