@@ -35,6 +35,8 @@ export default function Home() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [chats, setChats] = useState([]);
 
+  const [showSidebar, setShowSidebar] = useState(false);
+
   const [selectedChat, setSelectedChat] = useState("Selected Chat");
 
   const [selectedChatId, setSelectedChatId] = useState("");
@@ -86,7 +88,7 @@ export default function Home() {
         // get messages by chat_id
         const messages = getMessagesByChat(chat_id);
         if (messages) {
-          messages.push({user, timestamp, content});
+          messages.push({ user, timestamp, content });
           setMessagesByChatIDInCache(chat_id, messages);
         }
       }
@@ -133,10 +135,10 @@ export default function Home() {
     if (grabbed) {
       console.log("got chats by user id from cache", user_id);
       const parsed = JSON.parse(grabbed);
-      const out:never[] = [];
+      const out: never[] = [];
       parsed.forEach((chat: never) => {
         out.push(chat);
-      })
+      });
       return out;
     } else {
       return null;
@@ -149,10 +151,10 @@ export default function Home() {
     if (grabbed) {
       console.log("got messages for chat from cache:", chat_id);
       const parsed = JSON.parse(grabbed);
-      const out:Message[] = [];
+      const out: Message[] = [];
       parsed.forEach((msg: Message) => {
         out.push(msg);
-      })
+      });
       return out;
     } else {
       return null;
@@ -408,19 +410,23 @@ export default function Home() {
     console.log("Fetching Channels for user");
     getChatsForUser();
   }, [user]);
-
   if (user !== null && user !== undefined) {
     return (
       <div className="flex h-screen bg-gray-800 text-gray-100 font-inter">
         {/* Sidebar */}
-        <div className="w-64 bg-gray-900 flex flex-col p-4 rounded-lg m-2 shadow-lg">
-          <h2 className="text-xl font-bold mb-4 text-white">Channels
+        <div
+          className={`sm:w-64 bg-gray-900 flex flex-col p-4 rounded-lg m-2 shadow-lg max-sm:${
+            showSidebar ? "flex-1 w-screen" : "hidden"
+          }`}
+        >
+          <h2 className="text-xl font-bold mb-4 text-white">Channels</h2>
           <button
-              onClick={getChatsAPI}
-              className="bg-gray-700 hover:bg-gray-600 rounded-md p-2 text-2xl w-1/4"
+            onClick={getChatsAPI}
+            className="bg-gray-700 hover:bg-gray-600 rounded-md p-1 max-w-36"
           >
-            o
-          </button></h2>
+            Refresh Channels
+          </button>
+          <br></br>
           <div className="flex">
             <input
               placeholder="Channel Name..."
@@ -450,6 +456,7 @@ export default function Home() {
                   } hover:bg-gray-600 cursor-pointer transition-colors`}
                   onClick={() => {
                     loadMessages(chat.id, chat.name, chat.member_emails);
+                    setShowSidebar(false);
                   }}
                 >
                   {chat.name}
@@ -474,9 +481,19 @@ export default function Home() {
           </button>
         </div>
         {/* Main Chat Area */}
-        <div className="flex-1 flex flex-col bg-gray-700 rounded-lg m-2 shadow-lg">
+        <div
+          className={`flex-1 flex flex-col bg-gray-700 rounded-lg m-2 shadow-lg max-sm:${
+            showSidebar ? "hidden" : ""
+          }`}
+        >
           {/* Chat Header */}
-          <div className="p-4 bg-gray-900 rounded-t-lg flex items-center justify-between">
+          <button
+            className="bg-gray-800 active:bg-gray-600 rounded-t-md p-2 sm:hidden"
+            onClick={() => setShowSidebar(true)}
+          >
+            {`<`} Back to Channels/Account
+          </button>
+          <div className="p-4 bg-gray-900 flex items-center justify-between sm:rounded-t-lg">
             <h2 className="text-xl font-bold text-white">{selectedChat}</h2>
             {messages.length > 0 && (
               <div className="flex">
